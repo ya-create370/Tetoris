@@ -2,247 +2,82 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎮 Ya's Game Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Zen+Maru+Gothic:wght@700&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-:root{
-  --gold:#c9a84c;--cyan:#00ffb4;--pink:#ff6b9d;
-  --bg:#08080f;--card:#12121e;
-}
-html,body{width:100%;min-height:100%;background:var(--bg);color:#fff;font-family:"Zen Maru Gothic",sans-serif;}
-
-/* Background */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse at 20% 20%,rgba(0,255,180,.07) 0,transparent 55%),
-    radial-gradient(ellipse at 80% 80%,rgba(201,168,76,.07) 0,transparent 55%),
-    radial-gradient(ellipse at 80% 20%,rgba(255,107,157,.05) 0,transparent 45%);
-  pointer-events:none;z-index:0;
-}
-.scanlines{
-  position:fixed;inset:0;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);
-  pointer-events:none;z-index:0;
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#0a0a0f;
+  color:#fff;
+  text-align:center;
 }
 
-/* Layout */
-.container{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:0 16px 40px;}
-
-/* Header */
-header{padding:32px 0 24px;text-align:center;}
-.portal-title{
-  font-family:"Orbitron",monospace;font-size:11px;letter-spacing:6px;
-  color:rgba(0,255,180,.6);text-transform:uppercase;margin-bottom:10px;
-}
-.portal-name{
-  font-family:"Orbitron",monospace;font-size:30px;font-weight:900;
-  background:linear-gradient(135deg,var(--cyan) 0%,var(--gold) 60%,var(--pink) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  text-shadow:none;
-  letter-spacing:2px;line-height:1.1;
-  filter:drop-shadow(0 0 20px rgba(0,255,180,.3));
-}
-.portal-sub{font-size:12px;color:rgba(255,255,255,.3);margin-top:8px;letter-spacing:2px;}
-
-/* Stats bar */
-.stats-bar{
-  display:flex;justify-content:center;gap:24px;
-  padding:12px 0;margin-bottom:24px;
-  border-top:1px solid rgba(0,255,180,.1);
-  border-bottom:1px solid rgba(0,255,180,.1);
-}
-.stat{text-align:center;}
-.stat-n{font-family:"Orbitron",monospace;font-size:20px;font-weight:700;color:var(--cyan);}
-.stat-l{font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.3);}
-
-/* Section */
-.section-label{
-  font-family:"Orbitron",monospace;font-size:9px;letter-spacing:4px;
-  color:rgba(0,255,180,.5);text-transform:uppercase;
-  margin-bottom:12px;padding-left:4px;
+h1{
+  margin:30px 0;
 }
 
-/* Game cards */
-.games-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:32px;}
-
-.game-card{
-  background:var(--card);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;
-  padding:16px;
-  display:flex;align-items:center;gap:16px;
-  text-decoration:none;color:#fff;
-  position:relative;overflow:hidden;
-  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
-  cursor:pointer;
-}
-.game-card::before{
-  content:'';position:absolute;inset:0;border-radius:16px;opacity:0;
-  transition:opacity .18s;
-}
-.game-card:active{transform:scale(.97);}
-
-/* Color variants */
-.card-cyan{border-color:rgba(0,255,180,.2);}
-.card-cyan::before{background:linear-gradient(135deg,rgba(0,255,180,.08),transparent);}
-.card-cyan:active{border-color:rgba(0,255,180,.5);box-shadow:0 0 20px rgba(0,255,180,.15);}
-.card-cyan::before{opacity:1;}
-
-.card-gold{border-color:rgba(201,168,76,.2);}
-.card-gold::before{background:linear-gradient(135deg,rgba(201,168,76,.08),transparent);}
-.card-gold:active{border-color:rgba(201,168,76,.5);box-shadow:0 0 20px rgba(201,168,76,.15);}
-
-.card-pink{border-color:rgba(255,107,157,.2);}
-.card-pink::before{background:linear-gradient(135deg,rgba(255,107,157,.08),transparent);}
-.card-pink:active{border-color:rgba(255,107,157,.5);box-shadow:0 0 20px rgba(255,107,157,.15);}
-
-.card-purple{border-color:rgba(180,100,255,.2);}
-.card-purple::before{background:linear-gradient(135deg,rgba(180,100,255,.08),transparent);}
-.card-purple:active{border-color:rgba(180,100,255,.5);box-shadow:0 0 20px rgba(180,100,255,.15);}
-
-/* Icon */
-.game-icon{
-  width:60px;height:60px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;flex-shrink:0;position:relative;
-}
-.icon-cyan{background:linear-gradient(135deg,rgba(0,255,180,.15),rgba(0,255,180,.05));border:1px solid rgba(0,255,180,.3);}
-.icon-gold{background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.3);}
-.icon-pink{background:linear-gradient(135deg,rgba(255,107,157,.15),rgba(255,107,157,.05));border:1px solid rgba(255,107,157,.3);}
-.icon-purple{background:linear-gradient(135deg,rgba(180,100,255,.15),rgba(180,100,255,.05));border:1px solid rgba(180,100,255,.3);}
-
-.game-info{flex:1;min-width:0;}
-.game-name{font-family:"Orbitron",monospace;font-size:14px;font-weight:700;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.game-desc{font-size:11px;color:rgba(255,255,255,.4);line-height:1.5;margin-bottom:6px;}
-.game-tags{display:flex;gap:6px;flex-wrap:wrap;}
-.tag{
-  font-size:9px;letter-spacing:1px;padding:2px 8px;border-radius:20px;
-  border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);
+.container{
+  max-width:500px;
+  margin:auto;
 }
 
-.game-arrow{
-  font-size:18px;color:rgba(255,255,255,.2);flex-shrink:0;
-  transition:transform .18s,color .18s;
-}
-.game-card:active .game-arrow{transform:translateX(4px);color:rgba(255,255,255,.5);}
-
-/* Coming soon */
-.game-card.coming-soon{opacity:.45;cursor:default;pointer-events:none;}
-.coming-badge{
-  position:absolute;top:10px;right:10px;
-  font-size:8px;letter-spacing:2px;padding:3px 8px;border-radius:20px;
-  background:rgba(255,255,255,.06);color:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.1);
+.card{
+  background:#1a1a2e;
+  margin:15px;
+  padding:20px;
+  border-radius:15px;
+  text-decoration:none;
+  color:#fff;
+  display:block;
+  transition:0.2s;
 }
 
-/* Footer */
-footer{text-align:center;padding:20px 0;}
-.footer-cat{font-size:28px;margin-bottom:6px;}
-.footer-txt{font-size:10px;color:rgba(255,255,255,.2);letter-spacing:2px;}
-.footer-gold{color:rgba(201,168,76,.4);}
+.card:hover{
+  transform:scale(1.03);
+  background:#222244;
+}
 
-/* Animate cards in */
-.game-card{animation:fadeUp .4s ease backwards;}
-.game-card:nth-child(1){animation-delay:.05s;}
-.game-card:nth-child(2){animation-delay:.1s;}
-.game-card:nth-child(3){animation-delay:.15s;}
-.game-card:nth-child(4){animation-delay:.2s;}
-.game-card:nth-child(5){animation-delay:.25s;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.title{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.desc{
+  font-size:13px;
+  opacity:0.7;
+}
 </style>
 </head>
+
 <body>
-<div class="scanlines"></div>
+
+<h1>🎮 YASU GAME PORTAL</h1>
+
 <div class="container">
 
-  <header>
-    <div class="portal-title">Game Portal</div>
-    <div class="portal-name">YASU'S<br>ARCADE</div>
-    <div class="portal-sub">Bangkok Edition 🇹🇭</div>
-  </header>
+  <a class="card" href="./tetris.html">
+    <div class="title">🧱 Tetris</div>
+    <div class="desc">テトリスゲーム</div>
+  </a>
 
-  <div class="stats-bar">
-    <div class="stat"><div class="stat-n" id="gameCount">2</div><div class="stat-l">GAMES</div></div>
-    <div class="stat"><div class="stat-n">∞</div><div class="stat-l">FUN</div></div>
-    <div class="stat"><div class="stat-n">FREE</div><div class="stat-l">PRICE</div></div>
-  </div>
+  <a class="card" href="./aki-game-v3.html">
+    <div class="title">🐱 Aki Game</div>
+    <div class="desc">言葉キャッチゲーム</div>
+  </a>
 
-  <div class="section-label">▸ Games</div>
-  <div class="games-grid">
+  <a class="card" href="./aki-fortune.html">
+    <div class="title">🔮 Aki Fortune</div>
+    <div class="desc">占いゲーム</div>
+  </a>
 
-    <!-- Tetris -->
-    <a class="game-card card-cyan" href="./tetris.html">
-      <div class="game-icon icon-cyan">🟦</div>
-      <div class="game-info">
-        <div class="game-name">TETRIS</div>
-        <div class="game-desc">サイバー風テトリス。ブロックを積み上げよう！</div>
-        <div class="game-tags">
-          <span class="tag">PUZZLE</span>
-          <span class="tag">CYBER</span>
-          <span class="tag">PWA</span>
-        </div>
-      </div>
-      <div class="game-arrow">›</div>
-    </a>
-
-    <!-- Aki Chan -->
-    <a class="game-card card-gold" href="./aki-game-v3.html">
-      <div class="game-icon icon-gold">🐱</div>
-      <div class="game-info">
-        <div class="game-name">AKI CHAN</div>
-        <div class="game-desc">かわいい言葉をキャッチして悪口はよけよう！🇯🇵🇹🇭</div>
-        <div class="game-tags">
-          <span class="tag">CATCH</span>
-          <span class="tag">日本語</span>
-          <span class="tag">ภาษาไทย</span>
-        </div>
-      </div>
-      <div class="game-arrow">›</div>
-    </a>
-
-    <!-- Aki Fortune -->
-    <a class="game-card card-pink" href="./aki-fortune.html">
-      <div class="game-icon icon-pink">🐱</div>
-      <div class="game-info">
-        <div class="game-name">AKI Fortune</div>
-        <div class="game-desc">Aki Fortune Card！🇯🇵🇹🇭</div>
-        <div class="game-tags">
-          <span class="tag">CATCH</span>
-          <span class="tag">日本語</span>
-          <span class="tag">ภาษาไทย</span>
-        </div>
-      </div>
-      <div class="game-arrow">›</div>
-    </a>
-
-    <!-- Aki Tarot -->
-    <a class="game-card card-purple" href="./aki-tarot.html">
-      <div class="game-icon icon-purple">🐱</div>
-      <div class="game-info">
-        <div class="game-name">AKI Tarot</div>
-        <div class="game-desc">Aki TarotCard！🇯🇵🇹🇭</div>
-        <div class="game-tags">
-          <span class="tag">CATCH</span>
-          <span class="tag">日本語</span>
-          <span class="tag">ภาษาไทย</span>
-        </div>
-      </div>
-      <div class="game-arrow">›</div>
-    </a>
-
-  </div>
-
-  <footer>
-    <div class="footer-cat">🐱</div>
-    <div class="footer-txt">Made with ❤️ in <span class="footer-gold">Bangkok</span></div>
-  </footer>
+  <a class="card" href="./aki-tarot.html">
+    <div class="title">🃏 Aki Tarot</div>
+    <div class="desc">タロット占い</div>
+  </a>
 
 </div>
+
 </body>
 </html>
