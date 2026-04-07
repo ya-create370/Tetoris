@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a2e">
+<title>Nicharat Japan Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+JP:wght@300;400;700&family=Noto+Sans+JP:wght@300;400;500&family=Noto+Sans+Thai:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0f1a;--surface:rgba(255,255,255,0.06);--surface2:rgba(255,255,255,0.11);
+  --border:rgba(255,255,255,0.12);--text:#f0ece4;--text-muted:rgba(240,236,228,0.5);
+  --accent:#e8a87c;--accent2:#c97b5a;--gold:#d4af70;
+  --visited:#4a9b6f;--wishlist:#5b8abf;--danger:#c0392b;
+  --radius:16px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;position:relative}
+#bg-layer{position:fixed;inset:0;z-index:0;background:linear-gradient(135deg,#0f0f1a 0%,#1a1230 50%,#0d1a24 100%)}
+#bg-layer.has-img{background-size:cover;background-position:center}
+#bg-overlay{position:fixed;inset:0;z-index:1;background:rgba(10,10,20,0.74);backdrop-filter:blur(2px)}
+#app{position:relative;z-index:2;min-height:100vh}
+
+/* ── LANG BAR ── */
+.lang-bar{position:fixed;top:0;right:0;z-index:200;display:flex;gap:3px;padding:10px 12px}
+.lang-btn{padding:5px 11px;border-radius:99px;border:1px solid var(--border);background:rgba(15,15,26,0.88);backdrop-filter:blur(10px);color:var(--text-muted);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.lang-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(212,175,112,0.15)}
+
+/* ════════════════════════════
+   LOGIN / USER SELECT SCREEN
+════════════════════════════ */
+#loginScreen{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(10,10,20,0.96);backdrop-filter:blur(16px);
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;overflow-y:auto;
+}
+#loginScreen.show{display:flex}
+.login-logo{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);text-align:center;letter-spacing:2px;margin-bottom:4px;text-shadow:0 0 24px rgba(212,175,112,0.4)}
+.login-sub{font-size:11px;color:var(--text-muted);letter-spacing:2px;text-align:center;margin-bottom:32px}
+
+/* User list */
+.user-list{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.user-tile{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:var(--radius);
+  background:var(--surface);border:1px solid var(--border);
+  cursor:pointer;transition:all .22s;position:relative;
+}
+.user-tile:active{background:var(--surface2);border-color:var(--gold)}
+.user-avatar{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;border:2px solid var(--border);
+  font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;
+}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:15px;font-weight:500;font-family:'Noto Serif JP','Noto Sans Thai',serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-meta{font-size:10px;color:var(--text-muted);margin-top:3px;letter-spacing:.5px}
+.user-delete{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.3);
+  font-size:13px;cursor:pointer;color:#e74c3c;transition:all .2s;
+}
+.user-delete:active{background:rgba(192,57,43,0.35)}
+
+/* New user form */
+.new-user-box{
+  width:100%;max-width:360px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;
+}
+.new-user-title{font-size:11px;letter-spacing:2px;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:14px;text-transform:uppercase}
+.avatar-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.av-opt{
+  width:40px;height:40px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  cursor:pointer;transition:all .2s;background:var(--surface);
+}
+.av-opt.sel{border-color:var(--gold);background:rgba(212,175,112,0.15)}
+.login-inp{
+  width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-size:14px;outline:none;transition:border-color .2s;margin-bottom:10px;
+  font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;
+}
+.login-inp:focus{border-color:var(--gold)}
+.login-inp::placeholder{color:var(--text-muted)}
+.create-btn{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  border:none;border-radius:var(--radius);color:#fff;font-size:14px;font-weight:500;
+  cursor:pointer;transition:opacity .2s;
+  font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;
+}
+.create-btn:active{opacity:.85}
+.empty-users{text-align:center;color:var(--text-muted);font-size:13px;padding:16px 0}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding-bottom:84px}
+.screen.active{display:block}
+#home{display:none;flex-direction:column;align-items:center;padding:0}
+#home.active{display:flex}
+
+/* ── USER BAR (top-left when logged in) ── */
+#userBar{
+  position:fixed;top:0;left:0;z-index:150;
+  padding:10px 12px;display:none;align-items:center;gap:8px;
+}
+#userBar.show{display:flex}
+.user-bar-avatar{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px}
+.user-bar-name{font-size:12px;color:var(--gold);max-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.switch-user-btn{padding:4px 10px;border-radius:99px;border:1px solid var(--border);background:rgba(15,15,26,0.85);backdrop-filter:blur(8px);font-size:10px;color:var(--text-muted);cursor:pointer;transition:all .2s}
+.switch-user-btn:active{border-color:var(--gold);color:var(--gold)}
+
+/* ── HOME HERO ── */
+.home-hero{width:100%;padding:58px 24px 36px;text-align:center;background:linear-gradient(180deg,rgba(212,175,112,0.1) 0%,transparent 100%);border-bottom:1px solid var(--border)}
+.app-name{font-family:'Cinzel',serif;font-size:22px;font-weight:700;letter-spacing:2px;color:var(--gold);text-shadow:0 0 30px rgba(212,175,112,0.4);margin-bottom:2px}
+.app-tagline{font-size:12px;color:var(--text-muted);letter-spacing:1px;line-height:1.7}
+.stamp-count{margin:22px auto 0;display:inline-flex;align-items:baseline;gap:6px}
+.stamp-num{font-family:'Cinzel',serif;font-size:52px;font-weight:700;color:var(--accent);line-height:1}
+.stamp-denom{font-size:18px;color:var(--text-muted);font-family:'Cinzel',serif}
+.stamp-label{font-size:11px;color:var(--text-muted);letter-spacing:2px;margin-top:4px}
+.progress-wrap{width:100%;max-width:300px;margin:14px auto 0}
+.progress-track{width:100%;height:6px;background:rgba(255,255,255,0.1);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.home-filters{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+.f-btn{padding:6px 14px;border:1px solid var(--border);border-radius:99px;font-size:11px;color:var(--text-muted);background:var(--surface);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.f-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(212,175,112,0.1)}
+
+/* ── SECTIONS ── */
+.home-sections{width:100%;padding:22px 20px 0}
+.sec-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:14px;padding-left:2px}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 10px;text-align:center}
+.stat-num{font-family:'Cinzel',serif;font-size:22px;color:var(--accent)}
+.stat-lbl{font-size:9px;color:var(--text-muted);margin-top:2px;letter-spacing:1px}
+.recent-list{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory}
+.recent-list::-webkit-scrollbar{display:none}
+.recent-card{min-width:140px;height:100px;border-radius:var(--radius-sm);overflow:hidden;position:relative;flex-shrink:0;scroll-snap-align:start;cursor:pointer;border:1px solid var(--border)}
+.recent-card img{width:100%;height:100%;object-fit:cover}
+.recent-label{position:absolute;bottom:0;left:0;right:0;padding:20px 8px 8px;background:linear-gradient(transparent,rgba(0,0,0,.7));font-size:12px;font-weight:500}
+.region-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.region-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.region-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .25s}
+.region-card:active{transform:scale(.97);background:var(--surface2)}
+.region-card:active::before{opacity:1}
+.region-icon{font-size:26px;margin-bottom:8px}
+.region-name{font-size:14px;font-weight:500;font-family:'Noto Serif JP','Noto Sans Thai',serif;line-height:1.3}
+.region-sub{font-size:9px;color:var(--text-muted);margin-top:3px}
+.region-badge{position:absolute;top:10px;right:10px;font-size:10px;color:var(--gold);font-family:'Cinzel',serif}
+.bg-upload-btn{width:100%;padding:13px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);color:var(--text-muted);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.bg-upload-btn:active{border-color:var(--gold);color:var(--gold)}
+
+/* ── PREF LIST ── */
+#prefList{padding:0}
+.pref-header{position:sticky;top:0;z-index:10;background:rgba(15,15,26,0.93);backdrop-filter:blur(14px);padding:14px 20px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.back-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;transition:all .2s}
+.pref-h-title{font-family:'Noto Serif JP','Noto Sans Thai',serif;font-size:17px}
+.pref-h-sub{font-size:10px;color:var(--text-muted);letter-spacing:1px;margin-top:1px}
+.filter-bar{padding:10px 20px;display:flex;gap:8px;overflow-x:auto}
+.filter-bar::-webkit-scrollbar{display:none}
+.chip{padding:6px 13px;border-radius:99px;border:1px solid var(--border);font-size:11px;color:var(--text-muted);background:var(--surface);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.chip.active{border-color:var(--gold);color:var(--gold);background:rgba(212,175,112,0.12)}
+.pref-grid{padding:8px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pref-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 12px;cursor:pointer;transition:all .22s;position:relative;overflow:hidden}
+.pref-card.visited{border-color:rgba(74,155,111,.4);background:rgba(74,155,111,.08)}
+.pref-card.wl{border-color:rgba(91,138,191,.4);background:rgba(91,138,191,.06)}
+.pref-card:active{transform:scale(.97)}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2);margin-bottom:10px;transition:background .3s}
+.pref-card.visited .dot{background:var(--visited)}
+.pref-card.wl .dot{background:var(--wishlist)}
+.pref-name{font-size:15px;font-weight:500;font-family:'Noto Serif JP','Noto Sans Thai',serif;line-height:1.3}
+.pref-en{font-size:10px;color:var(--text-muted);margin-top:2px}
+.pref-icons{position:absolute;top:10px;right:10px;display:flex;gap:3px}
+.pref-ico{font-size:13px}
+.empty-state{grid-column:span 2;text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px}
+.empty-icon{font-size:40px;margin-bottom:12px}
+
+/* ── DETAIL ── */
+#detail{padding:0}
+.d-hero{position:relative;height:200px;overflow:hidden}
+.d-hero img{width:100%;height:100%;object-fit:cover}
+.d-hero-ov{position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(10,10,20,.9) 100%)}
+.d-back{position:absolute;top:16px;left:16px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;border:1px solid rgba(255,255,255,.2)}
+.d-hero-info{position:absolute;bottom:18px;left:20px;right:20px}
+.d-pref-name{font-family:'Noto Serif JP','Noto Sans Thai',serif;font-size:28px;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.d-pref-en{font-size:12px;color:var(--text-muted);letter-spacing:2px}
+.d-body{padding:18px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px}
+.toggle-lbl{font-size:13px;display:flex;align-items:center;gap:9px}
+.tog{width:48px;height:26px;border-radius:13px;background:rgba(255,255,255,.15);position:relative;cursor:pointer;transition:background .3s;flex-shrink:0}
+.tog.on{background:var(--visited)}
+.tog.fav{background:var(--gold)}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.tog.on::after,.tog.fav::after{transform:translateX(22px)}
+.inp-group{margin-bottom:14px}
+.inp-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;display:block;font-family:'Cinzel',serif}
+.inp{width:100%;padding:11px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+textarea.inp{min-height:78px;resize:vertical}
+.photo-sec{margin-bottom:18px}
+.photo-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.photo-scroll::-webkit-scrollbar{display:none}
+.p-thumb{width:88px;height:88px;border-radius:10px;object-fit:cover;flex-shrink:0;scroll-snap-align:start;border:1px solid var(--border);cursor:pointer}
+.p-add{width:88px;height:88px;border-radius:10px;background:var(--surface);border:1px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;flex-shrink:0;font-size:10px;color:var(--text-muted);transition:all .2s}
+.p-add:active{border-color:var(--gold);color:var(--gold)}
+.p-add-icon{font-size:22px}
+.save-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--accent2),var(--accent));border:none;border-radius:var(--radius);color:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .2s;margin-top:6px;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.save-btn:active{opacity:.85}
+.spot-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.spot-ico{font-size:26px;flex-shrink:0;margin-top:2px}
+.spot-name{font-size:13px;font-weight:500;margin-bottom:4px}
+.spot-desc{font-size:11px;color:var(--text-muted);line-height:1.5}
+.spot-cat{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.08);font-size:10px;color:var(--text-muted)}
+.wl-btn{width:100%;padding:15px;border:1.5px solid var(--wishlist);border-radius:var(--radius);background:rgba(91,138,191,.1);color:var(--wishlist);font-size:14px;cursor:pointer;margin-top:8px;transition:all .2s;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.wl-btn.active{background:var(--wishlist);color:#fff}
+.wl-btn:active{opacity:.8}
+.divider{height:1px;background:var(--border);margin:18px 0}
+
+/* ── PHOTO VIEWER ── */
+#photoViewer{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.95);align-items:center;justify-content:center;flex-direction:column}
+#photoViewer.open{display:flex}
+#photoViewer img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:8px}
+.v-close{position:absolute;top:20px;right:20px;font-size:26px;cursor:pointer;width:40px;height:40px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.v-del{margin-top:14px;padding:10px 24px;background:rgba(192,57,43,.3);border:1px solid rgba(192,57,43,.5);border-radius:99px;color:#e74c3c;cursor:pointer;font-size:13px;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+
+/* ── CONFIRM DIALOG ── */
+#confirmDialog{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px}
+#confirmDialog.show{display:flex}
+.confirm-box{background:#1a1a2e;border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:100%;max-width:320px;text-align:center}
+.confirm-title{font-size:16px;font-weight:500;margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--text-muted);margin-bottom:20px;line-height:1.5}
+.confirm-btns{display:flex;gap:10px}
+.confirm-cancel{flex:1;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.confirm-ok{flex:1;padding:12px;border:none;border-radius:var(--radius-sm);background:var(--danger);color:#fff;font-size:13px;cursor:pointer;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(35,35,55,.95);border:1px solid var(--border);padding:10px 20px;border-radius:99px;font-size:13px;opacity:0;z-index:400;transition:all .3s;white-space:nowrap;backdrop-filter:blur(12px);font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── BOTTOM NAV ── */
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(15,15,26,.96);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;transition:all .2s}
+.nav-ico{font-size:22px}
+.nav-lbl{font-size:9px;color:var(--text-muted);letter-spacing:.5px;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
+.nav-item.active .nav-lbl{color:var(--gold)}
+.nav-item.active .nav-ico{filter:drop-shadow(0 0 6px var(--gold))}
+input[type="file"]{display:none}
+</style>
+</head>
+<body>
+
+<div id="bg-layer"></div>
+<div id="bg-overlay"></div>
+
+<!-- LANG BAR -->
+<div class="lang-bar">
+  <div class="lang-btn active" onclick="setLang('ja')">日本語</div>
+  <div class="lang-btn" onclick="setLang('en')">EN</div>
+  <div class="lang-btn" onclick="setLang('th')">ภาษาไทย</div>
+</div>
+
+<!-- USER BAR (top-left, shown when logged in) -->
+<div id="userBar">
+  <div class="user-bar-avatar" id="userBarAvatar"></div>
+  <div class="user-bar-name" id="userBarName"></div>
+  <div class="switch-user-btn" onclick="showLogin()" data-i="switchUser"></div>
+</div>
+
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="loginScreen" class="show">
+  <div class="login-logo">Nicharat Japan Journey</div>
+  <div class="login-sub" data-i="loginSubtitle"></div>
+
+  <!-- Existing users -->
+  <div class="user-list" id="userList"></div>
+
+  <!-- Create new user -->
+  <div class="new-user-box">
+    <div class="new-user-title" data-i="newUser"></div>
+    <div class="avatar-row" id="avatarRow"></div>
+    <input class="login-inp" id="newUserName" type="text" maxlength="20" data-placeholder-i="namePlaceholder">
+    <button class="create-btn" onclick="createUser()" data-i="createBtn"></button>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app" style="display:none">
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-hero">
+    <div class="app-name">Nicharat Japan Journey</div>
+    <div class="app-tagline" id="tagline"></div>
+    <div class="stamp-count">
+      <span class="stamp-num" id="visitedCount">0</span>
+      <span class="stamp-denom">/ 47</span>
+    </div>
+    <div class="stamp-label" id="stampLabel"></div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="home-filters">
+      <div class="f-btn on"  id="filter-all"     onclick="setHomeFilter('all')">🗾 <span data-i="all"></span></div>
+      <div class="f-btn"     id="filter-visited"  onclick="setHomeFilter('visited')">✅ <span data-i="visited"></span></div>
+      <div class="f-btn"     id="filter-wishlist" onclick="setHomeFilter('wishlist')">🔖 <span data-i="wishlist"></span></div>
+      <div class="f-btn"     id="filter-fav"      onclick="setHomeFilter('fav')">⭐ <span data-i="favorites"></span></div>
+    </div>
+  </div>
+  <div class="home-sections">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="statVisited">0</div><div class="stat-lbl" data-i="visited"></div></div>
+      <div class="stat-card"><div class="stat-num" id="statFav">0</div><div class="stat-lbl" data-i="favorites"></div></div>
+      <div class="stat-card"><div class="stat-num" id="statWish">0</div><div class="stat-lbl" data-i="wishlist"></div></div>
+    </div>
+    <div id="recentSection" style="display:none;margin-bottom:24px">
+      <div class="sec-title" data-i="recentMemories"></div>
+      <div class="recent-list" id="recentList"></div>
+    </div>
+    <div class="sec-title" data-i="regions"></div>
+    <div class="region-grid" id="regionGrid"></div>
+    <div style="margin-top:22px;margin-bottom:8px">
+      <div class="bg-upload-btn" onclick="document.getElementById('bgUpload').click()">
+        🖼️ <span data-i="changeBg"></span>
+      </div>
+      <input type="file" id="bgUpload" accept="image/*" onchange="handleBgUpload(event)">
+    </div>
+  </div>
+</div>
+
+<!-- PREF LIST -->
+<div id="prefList" class="screen">
+  <div class="pref-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <div>
+      <div class="pref-h-title" id="regionTitle"></div>
+      <div class="pref-h-sub"   id="regionSub"></div>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <div class="chip active" data-pf="all"       onclick="setPrefFilter('all',this)"       data-i="all"></div>
+    <div class="chip"        data-pf="visited"   onclick="setPrefFilter('visited',this)"    data-i="visited"></div>
+    <div class="chip"        data-pf="unvisited" onclick="setPrefFilter('unvisited',this)"  data-i="unvisited"></div>
+    <div class="chip"        data-pf="wishlist"  onclick="setPrefFilter('wishlist',this)"   data-i="wishlist"></div>
+    <div class="chip"        data-pf="favorite"  onclick="setPrefFilter('favorite',this)"   data-i="favorites"></div>
+  </div>
+  <div class="pref-grid" id="prefGrid"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="detail" class="screen">
+  <div class="d-hero">
+    <img id="detailHeroImg" src="" alt="">
+    <div class="d-hero-ov"></div>
+    <div class="d-back" onclick="goBack()">←</div>
+    <div class="d-hero-info">
+      <div class="d-pref-name" id="detailPrefName"></div>
+      <div class="d-pref-en"   id="detailPrefSub"></div>
+    </div>
+  </div>
+  <div class="d-body" id="detailBody"></div>
+</div>
+
+</div><!-- /#app -->
+
+<!-- Photo viewer -->
+<div id="photoViewer">
+  <div class="v-close" onclick="closeViewer()">✕</div>
+  <img id="viewerImg" src="" alt="">
+  <div class="v-del" id="vDelBtn" onclick="deleteViewerPhoto()"></div>
+</div>
+
+<!-- Confirm dialog -->
+<div id="confirmDialog">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-msg"   id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" id="confirmCancel" onclick="closeConfirm()"></button>
+      <button class="confirm-ok"     id="confirmOk"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div id="bottom-nav">
+  <div class="nav-item active" onclick="goHome();setNav(0)"><span class="nav-ico">🗾</span><span class="nav-lbl" data-i="home"></span></div>
+  <div class="nav-item" onclick="showRegionSelect();setNav(1)"><span class="nav-ico">📍</span><span class="nav-lbl" data-i="explore"></span></div>
+  <div class="nav-item" onclick="showFavorites();setNav(2)"><span class="nav-ico">⭐</span><span class="nav-lbl" data-i="favorites"></span></div>
+  <div class="nav-item" onclick="showWishlist();setNav(3)"><span class="nav-ico">🔖</span><span class="nav-lbl" data-i="wishlist"></span></div>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="photoUpload" accept="image/*" multiple>
+
+<script>
+// ════════════════════════════════
+//  i18n
+// ════════════════════════════════
+const I18N = {
+  ja:{
+    loginSubtitle:'あなたのプロフィールを選んでください',
+    newUser:'新しいユーザーを作成',
+    namePlaceholder:'ニックネームを入力',
+    createBtn:'✈️ アカウントを作成',
+    switchUser:'切替',
+    noUsers:'まだユーザーがいません',
+    deleteUserTitle:'ユーザーを削除',
+    deleteUserMsg:'「{name}」の旅行データがすべて削除されます。元に戻せません。',
+    confirmDelete:'削除する',
+    cancel:'キャンセル',
+    tagline:'日本47都道府県の思い出マップ',
+    stampLabel:'制覇した都道府県',
+    all:'すべて', visited:'訪問済み', unvisited:'未訪問',
+    wishlist:'行きたい', favorites:'お気に入り',
+    regions:'— 地域から探す —', recentMemories:'— 最近の思い出 —',
+    changeBg:'背景画像を変更', home:'ホーム', explore:'探す',
+    deletePhoto:'🗑️ 削除',
+    visitedStatus:'✅ 訪問済み', notVisitedStatus:'⬜ 未訪問',
+    favoriteLabel:'⭐ お気に入り',
+    visitDate:'訪問日', memories:'思い出・メモ',
+    memoriesPlaceholder:'この場所の思い出を書いてください...',
+    photos:'写真', addPhoto:'追加', save:'💾 保存する',
+    addToWishlist:'🔖 行きたいリストに追加', removeFromWishlist:'🔖 行きたいリスト済み',
+    recommendedSpots:'— おすすめスポット —',
+    toastVisited:'✅ 訪問済みに設定しました', toastUnvisited:'⬜ 未訪問に戻しました',
+    toastFavOn:'⭐ お気に入りに追加', toastFavOff:'⭐ お気に入りを解除',
+    toastWlOn:'🔖 行きたいリストに追加', toastWlOff:'🔖 リストから削除',
+    toastSaved:'💾 保存しました！', toastPhotoAdded:'枚追加しました',
+    toastPhotoDeleted:'🗑️ 写真を削除', toastBg:'🖼️ 背景画像を設定',
+    toastUserCreated:'アカウントを作成しました！',
+    toastUserDeleted:'ユーザーを削除しました',
+    empty:'該当する都道府県がありません',
+    lastLogin:'最終ログイン',
+    visitedCount:'訪問済み',
+    regionNames:{hokkaido:'北海道',tohoku:'東北',kanto:'関東',chubu:'中部',kinki:'近畿',chugoku:'中国',shikoku:'四国',kyushu:'九州・沖縄'}
+  },
+  en:{
+    loginSubtitle:'Choose your profile',
+    newUser:'Create New User',
+    namePlaceholder:'Enter your nickname',
+    createBtn:'✈️ Create Account',
+    switchUser:'Switch',
+    noUsers:'No users yet',
+    deleteUserTitle:'Delete User',
+    deleteUserMsg:'All travel data for "{name}" will be permanently deleted.',
+    confirmDelete:'Delete',
+    cancel:'Cancel',
+    tagline:"Memory Map of Japan's 47 Prefectures",
+    stampLabel:'Prefectures Visited',
+    all:'All', visited:'Visited', unvisited:'Not Yet',
+    wishlist:'Want to Go', favorites:'Favorites',
+    regions:'— Explore by Region —', recentMemories:'— Recent Memories —',
+    changeBg:'Change Background Photo', home:'Home', explore:'Explore',
+    deletePhoto:'🗑️ Delete',
+    visitedStatus:'✅ Visited', notVisitedStatus:'⬜ Not Yet Visited',
+    favoriteLabel:'⭐ Favorite',
+    visitDate:'Visit Date', memories:'Memories & Notes',
+    memoriesPlaceholder:'Write your memories of this place...',
+    photos:'Photos', addPhoto:'Add', save:'💾 Save',
+    addToWishlist:'🔖 Add to Wishlist', removeFromWishlist:'🔖 Added to Wishlist',
+    recommendedSpots:'— Recommended Spots —',
+    toastVisited:'✅ Marked as visited!', toastUnvisited:'⬜ Marked as not visited',
+    toastFavOn:'⭐ Added to favorites', toastFavOff:'⭐ Removed from favorites',
+    toastWlOn:'🔖 Added to wishlist', toastWlOff:'🔖 Removed from wishlist',
+    toastSaved:'💾 Saved!', toastPhotoAdded:'photo(s) added',
+    toastPhotoDeleted:'🗑️ Photo deleted', toastBg:'🖼️ Background image set',
+    toastUserCreated:'Account created!',
+    toastUserDeleted:'User deleted',
+    empty:'No prefectures found',
+    lastLogin:'Last login',
+    visitedCount:'visited',
+    regionNames:{hokkaido:'Hokkaido',tohoku:'Tohoku',kanto:'Kanto',chubu:'Chubu',kinki:'Kinki',chugoku:'Chugoku',shikoku:'Shikoku',kyushu:'Kyushu & Okinawa'}
+  },
+  th:{
+    loginSubtitle:'เลือกโปรไฟล์ของคุณ',
+    newUser:'สร้างผู้ใช้ใหม่',
+    namePlaceholder:'ใส่ชื่อเล่น',
+    createBtn:'✈️ สร้างบัญชี',
+    switchUser:'เปลี่ยน',
+    noUsers:'ยังไม่มีผู้ใช้',
+    deleteUserTitle:'ลบผู้ใช้',
+    deleteUserMsg:'ข้อมูลการเดินทางทั้งหมดของ "{name}" จะถูกลบถาวร',
+    confirmDelete:'ลบ',
+    cancel:'ยกเลิก',
+    tagline:'แผนที่ความทรงจำ 47 จังหวัดของญี่ปุ่น',
+    stampLabel:'จังหวัดที่เคยไปแล้ว',
+    all:'ทั้งหมด', visited:'ไปแล้ว', unvisited:'ยังไม่ได้ไป',
+    wishlist:'อยากไป', favorites:'ที่ชื่นชอบ',
+    regions:'— เลือกตามภูมิภาค —', recentMemories:'— ความทรงจำล่าสุด —',
+    changeBg:'เปลี่ยนรูปพื้นหลัง', home:'หน้าหลัก', explore:'สำรวจ',
+    deletePhoto:'🗑️ ลบ',
+    visitedStatus:'✅ ไปแล้ว', notVisitedStatus:'⬜ ยังไม่ได้ไป',
+    favoriteLabel:'⭐ ที่ชื่นชอบ',
+    visitDate:'วันที่ไปเที่ยว', memories:'ความทรงจำและบันทึก',
+    memoriesPlaceholder:'เขียนความทรงจำของคุณที่นี่...',
+    photos:'รูปภาพ', addPhoto:'เพิ่ม', save:'💾 บันทึก',
+    addToWishlist:'🔖 เพิ่มในรายการอยากไป', removeFromWishlist:'🔖 อยู่ในรายการแล้ว',
+    recommendedSpots:'— สถานที่แนะนำ —',
+    toastVisited:'✅ บันทึกว่าได้ไปแล้ว!', toastUnvisited:'⬜ เปลี่ยนเป็นยังไม่ได้ไป',
+    toastFavOn:'⭐ เพิ่มในรายการที่ชื่นชอบ', toastFavOff:'⭐ ลบออกจากรายการที่ชื่นชอบ',
+    toastWlOn:'🔖 เพิ่มในรายการอยากไปแล้ว', toastWlOff:'🔖 ลบออกจากรายการแล้ว',
+    toastSaved:'💾 บันทึกแล้ว!', toastPhotoAdded:'รูปถูกเพิ่มแล้ว',
+    toastPhotoDeleted:'🗑️ ลบรูปแล้ว', toastBg:'🖼️ ตั้งรูปพื้นหลังแล้ว',
+    toastUserCreated:'สร้างบัญชีแล้ว!',
+    toastUserDeleted:'ลบผู้ใช้แล้ว',
+    empty:'ไม่พบจังหวัดที่ตรงเงื่อนไข',
+    lastLogin:'เข้าใช้ล่าสุด',
+    visitedCount:'จังหวัด',
+    regionNames:{hokkaido:'ฮอกไกโด',tohoku:'โทโฮคุ',kanto:'คันโต',chubu:'ชูบุ',kinki:'คินกิ',chugoku:'ชูโงกุ',shikoku:'ชิโกกุ',kyushu:'คิวชู & โอกินาวา'}
+  }
+};
+
+const AVATARS = ['🧑','👩','👨','🧒','👧','👦','🧔','👩‍🦱','👩‍🦰','🧑‍🦲','🦸','🧝','🧙','👸','🤴','🧑‍✈️','🧑‍🎤','🧑‍🍳','🧑‍🎨','🐱'];
+
+// ════════════════════════════════
+//  STATIC DATA
+// ════════════════════════════════
+const REGIONS = [
+  {id:'hokkaido',en:'Hokkaido',        icon:'🏔️',prefs:['北海道']},
+  {id:'tohoku',  en:'Tohoku',          icon:'⛩️',prefs:['青森県','岩手県','宮城県','秋田県','山形県','福島県']},
+  {id:'kanto',   en:'Kanto',           icon:'🗼',prefs:['茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県']},
+  {id:'chubu',   en:'Chubu',           icon:'🗻',prefs:['新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県']},
+  {id:'kinki',   en:'Kinki',           icon:'🦌',prefs:['三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県']},
+  {id:'chugoku', en:'Chugoku',         icon:'⛩️',prefs:['鳥取県','島根県','岡山県','広島県','山口県']},
+  {id:'shikoku', en:'Shikoku',         icon:'🍋',prefs:['徳島県','香川県','愛媛県','高知県']},
+  {id:'kyushu',  en:'Kyushu & Okinawa',icon:'🌺',prefs:['福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県']}
+];
+
+const PREFS={
+  '北海道':{en:'Hokkaido',th:'ฮอกไกโด',img:'https://images.unsplash.com/photo-1542640244-6a65f64c0cca?w=600&q=70',spots:[{name:{ja:'富良野ラベンダー畑',en:'Furano Lavender',th:'ทุ่งลาเวนเดอร์ฟูราโน่'},desc:{ja:'夏の紫のラベンダーが絶景',en:'Stunning purple lavender in summer',th:'ทุ่งลาเวนเดอร์สวยงามในฤดูร้อน'},icon:'🌸',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'小樽運河',en:'Otaru Canal',th:'คลองโอตารุ'},desc:{ja:'ノスタルジックな港町',en:'Nostalgic harbor town',th:'วิวเมืองท่าเก่าแก่'},icon:'⚓',cat:{ja:'観光',en:'Sightseeing',th:'ท่องเที่ยว'}},{name:{ja:'札幌ラーメン',en:'Sapporo Ramen',th:'ราเมนซัปโปโร'},desc:{ja:'濃厚みそラーメンの聖地',en:'Rich miso ramen holy land',th:'รามเมงมิโซะเข้มข้น'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '青森県':{en:'Aomori',th:'อาโอโมริ',img:'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=70',spots:[{name:{ja:'弘前城の桜',en:'Hirosaki Cherry Blossoms',th:'ซากุระฮิโรซากิ'},desc:{ja:'日本一の桜の名所',en:"Japan's finest cherry blossoms",th:'จุดชมซากุระที่ดีที่สุด'},icon:'🌸',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'ねぶた祭り',en:'Nebuta Festival',th:'เทศกาลเนบุตะ'},desc:{ja:'迫力満点の夏祭り',en:'Spectacular summer festival',th:'เทศกาลฤดูร้อนอลังการ'},icon:'🏮',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'大間マグロ',en:'Oma Tuna',th:'ปลาทูน่าโอมะ'},desc:{ja:'本州最北端のマグロ',en:'Tuna from northern Honshu',th:'ปลาทูน่าจากปลายสุดทางเหนือ'},icon:'🐟',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '岩手県':{en:'Iwate',th:'อิวาเตะ',img:'https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=600&q=70',spots:[{name:{ja:'中尊寺金色堂',en:'Chuson-ji Konjikido',th:'วัดชูซอนจิ ห้องทอง'},desc:{ja:'世界遺産の黄金の仏堂',en:'UNESCO golden temple',th:'วัดทองคำมรดกโลก'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'厳美渓',en:'Genbikei Gorge',th:'หุบเขาเกนบิเคอิ'},desc:{ja:'壮大な峡谷と滝',en:'Magnificent gorge and falls',th:'หุบเขาและน้ำตกงดงาม'},icon:'💧',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'わんこそば',en:'Wanko Soba',th:'วันโกะโซบะ'},desc:{ja:'食べ放題そば',en:'All-you-can-eat soba',th:'โซบะทานไม่อั้น'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '宮城県':{en:'Miyagi',th:'มิยากิ',img:'https://images.unsplash.com/photo-1526400473556-aac12354f3db?w=600&q=70',spots:[{name:{ja:'松島',en:'Matsushima',th:'มัตสึชิมะ'},desc:{ja:'日本三景のひとつ',en:"One of Japan's three views",th:'หนึ่งในสามทัศนียภาพงาม'},icon:'🌊',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'仙台七夕祭り',en:'Tanabata Festival',th:'เทศกาลทานาบาตะ'},desc:{ja:'日本最大の七夕まつり',en:"Japan's largest Tanabata",th:'เทศกาลทานาบาตะที่ใหญ่ที่สุด'},icon:'🎋',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'牛タン焼き',en:'Grilled Beef Tongue',th:'เนื้อลิ้นวัวย่าง'},desc:{ja:'仙台名物の牛タン',en:'Famous Sendai beef tongue',th:'ลิ้นวัวย่างชื่อดัง'},icon:'🥩',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '秋田県':{en:'Akita',th:'อาคิตะ',img:'https://images.unsplash.com/photo-1478359844494-1092259d93e4?w=600&q=70',spots:[{name:{ja:'乳頭温泉郷',en:'Nyuto Onsen',th:'ออนเซ็นนิวโต'},desc:{ja:'ブナ林の秘湯',en:'Hidden hot spring in forest',th:'ออนเซ็นลับในป่า'},icon:'♨️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'男鹿のナマハゲ',en:'Namahage',th:'นามาฮาเงะ'},desc:{ja:'ユネスコ無形文化遺産',en:'UNESCO cultural heritage',th:'มรดกวัฒนธรรมยูเนสโก'},icon:'👹',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'稲庭うどん',en:'Inaniwa Udon',th:'อุด้งอินาวะ'},desc:{ja:'日本三大うどん',en:"One of Japan's 3 great udon",th:'หนึ่งในสามอุด้งชื่อดัง'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '山形県':{en:'Yamagata',th:'ยามากาตะ',img:'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=70',spots:[{name:{ja:'山寺',en:'Yamadera Temple',th:'วัดยามาเดระ'},desc:{ja:'岩山の古刹',en:'Ancient mountain temple',th:'วัดโบราณบนภูเขาหิน'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'蔵王の樹氷',en:'Zao Ice Monsters',th:'ต้นไม้น้ำแข็งซาโอ'},desc:{ja:'冬の絶景',en:'Stunning winter ice trees',th:'ต้นไม้น้ำแข็งสวยงาม'},icon:'❄️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'山形牛',en:'Yamagata Beef',th:'เนื้อวัวยามากาตะ'},desc:{ja:'ブランド牛',en:'Premium brand beef',th:'เนื้อวัวแบรนด์ดัง'},icon:'🥩',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '福島県':{en:'Fukushima',th:'ฟุกุชิมะ',img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=70',spots:[{name:{ja:'鶴ヶ城',en:'Tsurugajo Castle',th:'ปราสาทสึรุกะโจ'},desc:{ja:'会津若松のシンボル',en:'Symbol of Aizuwakamatsu',th:'สัญลักษณ์เมืองไอซุ'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'裏磐梯',en:'Urabandai',th:'อุระบันได'},desc:{ja:'絶景湖群',en:'Spectacular natural lakes',th:'ทะเลสาบธรรมชาติงดงาม'},icon:'🏔️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'喜多方ラーメン',en:'Kitakata Ramen',th:'ราเมนคิตะคาตะ'},desc:{ja:'日本三大ラーメン',en:"One of Japan's 3 great ramen",th:'หนึ่งในสามราเมงชื่อดัง'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '茨城県':{en:'Ibaraki',th:'อิบารากิ',img:'https://images.unsplash.com/photo-1492571350019-22de08371fd3?w=600&q=70',spots:[{name:{ja:'偕楽園',en:'Kairakuen Garden',th:'สวนไคระกุเอ็น'},desc:{ja:'日本三名園',en:"One of Japan's 3 great gardens",th:'หนึ่งในสามสวนชื่อดัง'},icon:'🌸',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'袋田の滝',en:'Fukuroda Falls',th:'น้ำตกฟุกุโรดะ'},desc:{ja:'日本三名瀑',en:"One of Japan's 3 great falls",th:'หนึ่งในสามน้ำตกดัง'},icon:'💧',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'水戸の納豆',en:'Mito Natto',th:'นัตโตะมิโตะ'},desc:{ja:'日本一の納豆産地',en:"Japan's top natto area",th:'แหล่งผลิตนัตโตะอันดับหนึ่ง'},icon:'🫘',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '栃木県':{en:'Tochigi',th:'โตชิงิ',img:'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=600&q=70',spots:[{name:{ja:'日光東照宮',en:'Nikko Toshogu',th:'ศาลเจ้านิกโก้โทโชกุ'},desc:{ja:'世界遺産の神社',en:'UNESCO World Heritage shrine',th:'ศาลเจ้ามรดกโลก'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'那須高原',en:'Nasu Highland',th:'ที่ราบสูงนาสุ'},desc:{ja:'自然と温泉',en:'Nature and hot springs',th:'ธรรมชาติและออนเซ็น'},icon:'🏔️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'宇都宮餃子',en:'Utsunomiya Gyoza',th:'เกี๊ยวอุตสึโนมิยะ'},desc:{ja:'餃子消費量全国1位',en:"Japan's #1 gyoza city",th:'เมืองเกี๊ยวอันดับหนึ่ง'},icon:'🥟',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '群馬県':{en:'Gunma',th:'กุมมะ',img:'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=600&q=70',spots:[{name:{ja:'草津温泉',en:'Kusatsu Onsen',th:'ออนเซ็นคุซัตสึ'},desc:{ja:'日本最大級の温泉',en:"One of Japan's largest onsen",th:'ออนเซ็นใหญ่ที่สุด'},icon:'♨️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'富岡製糸場',en:'Tomioka Silk Mill',th:'โรงงานไหมโทมิโอกะ'},desc:{ja:'世界遺産',en:'UNESCO World Heritage',th:'มรดกโลก'},icon:'🏭',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'上州牛',en:'Joshu Beef',th:'เนื้อวัวโจชู'},desc:{ja:'群馬のブランド牛',en:'Gunma branded beef',th:'เนื้อวัวแบรนด์กุมมะ'},icon:'🥩',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '埼玉県':{en:'Saitama',th:'ไซตามะ',img:'https://images.unsplash.com/photo-1554797589-7241bb691973?w=600&q=70',spots:[{name:{ja:'川越',en:'Kawagoe',th:'คาวาโกเอะ'},desc:{ja:'小江戸の蔵の街',en:'Little Edo town',th:'"เอโดะน้อย"'},icon:'🏘️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'長瀞',en:'Nagatoro',th:'นางาโตโระ'},desc:{ja:'秩父のラフティング',en:'River rafting in Chichibu',th:'ล่องแก่งชิชิบุ'},icon:'🚣',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'武蔵野うどん',en:'Musashino Udon',th:'อุด้งมุซาชิโนะ'},desc:{ja:'コシの強いうどん',en:'Chewy wheat udon',th:'อุด้งเหนียวนุ่ม'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '千葉県':{en:'Chiba',th:'ชิบะ',img:'https://images.unsplash.com/photo-1569437061241-a848be43cc82?w=600&q=70',spots:[{name:{ja:'成田山新勝寺',en:'Naritasan Temple',th:'วัดนาริตะซัง'},desc:{ja:'年間1000万人参拝',en:'10 million annual visitors',th:'ผู้เยี่ยมชม 10 ล้านคนต่อปี'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'鋸山',en:'Nokogiriyama',th:'ภูเขาโนโกกิริ'},desc:{ja:'迫力の石切り場跡',en:'Impressive stone quarry',th:'เหมืองหินเก่า'},icon:'⛰️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'勝浦タンタンメン',en:'Katsuura Tantanmen',th:'ทันทันเมนคัตสึอุระ'},desc:{ja:'千葉独自のラー油麺',en:"Chiba's unique chili noodle",th:'บะหมี่น้ำมันพริกสไตล์ชิบะ'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '東京都':{en:'Tokyo',th:'โตเกียว',img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=70',spots:[{name:{ja:'浅草・浅草寺',en:'Asakusa Senso-ji',th:'วัดเซ็นโซจิ'},desc:{ja:'東京最古の寺院',en:"Tokyo's oldest temple",th:'วัดเก่าแก่ของโตเกียว'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'新宿御苑',en:'Shinjuku Gyoen',th:'สวนชินจูกุ'},desc:{ja:'四季の花が咲く庭園',en:'Garden with seasonal flowers',th:'สวนดอกไม้สี่ฤดู'},icon:'🌸',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'築地場外市場',en:'Tsukiji Outer Market',th:'ตลาดสึกิจิ'},desc:{ja:'世界一の海鮮',en:'World-class seafood market',th:'ตลาดอาหารทะเลระดับโลก'},icon:'🐟',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '神奈川県':{en:'Kanagawa',th:'คานากาวะ',img:'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=70',spots:[{name:{ja:'鎌倉大仏',en:'Kamakura Great Buddha',th:'พระพุทธรูปใหญ่คามากุระ'},desc:{ja:'高徳院の巨大仏',en:'Massive outdoor Buddha',th:'พระพุทธรูปยักษ์กลางแจ้ง'},icon:'☸️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'横浜中華街',en:'Yokohama Chinatown',th:'ไชนาทาวน์โยโกฮามะ'},desc:{ja:'日本最大の中華街',en:"Japan's largest Chinatown",th:'ไชนาทาวน์ที่ใหญ่ที่สุด'},icon:'🏮',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}},{name:{ja:'江の島',en:'Enoshima Island',th:'เกาะเอโนชิมะ'},desc:{ja:'海の小島と洞窟',en:'Small island with sea caves',th:'เกาะเล็กพร้อมถ้ำทะเล'},icon:'🌊',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}}]},
+  '新潟県':{en:'Niigata',th:'นีกาตะ',img:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600&q=70',spots:[{name:{ja:'佐渡島',en:'Sado Island',th:'เกาะซาโด'},desc:{ja:'トキが生息する離島',en:'Remote island of ibis birds',th:'เกาะห่างไกลที่มีนกไบอิส'},icon:'🦅',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'弥彦神社',en:'Yahiko Shrine',th:'ศาลเจ้ายาฮิโกะ'},desc:{ja:'越後一宮',en:'Historic Echigo shrine',th:'ศาลเจ้าประวัติศาสตร์'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'へぎそば',en:'Hegi Soba',th:'เฮกิโซบะ'},desc:{ja:'布海苔そば',en:'Seaweed soba noodle',th:'โซบะสาหร่าย'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '富山県':{en:'Toyama',th:'โทยามะ',img:'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=600&q=70',spots:[{name:{ja:'立山黒部アルペンルート',en:'Tateyama Kurobe Route',th:'เส้นทางทาเตยามะคุโรเบะ'},desc:{ja:'3000m級の山岳観光',en:'Mountain tourism at 3000m',th:'ท่องเที่ยวภูเขาสูง 3000 เมตร'},icon:'🏔️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'富山城',en:'Toyama Castle',th:'ปราสาทโทยามะ'},desc:{ja:'水の城',en:'"Castle of Water"',th:'"ปราสาทน้ำ"'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'富山の白エビ',en:'White Shrimp',th:'กุ้งขาวโทยามะ'},desc:{ja:'深海の宝石',en:'"Jewel of the deep sea"',th:'"อัญมณีทะเลลึก"'},icon:'🦐',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '石川県':{en:'Ishikawa',th:'อิชิกาวะ',img:'https://images.unsplash.com/photo-1526400473556-aac12354f3db?w=600&q=70',spots:[{name:{ja:'兼六園',en:'Kenroku-en Garden',th:'สวนเค็นโรคุเอ็น'},desc:{ja:'日本三名園',en:"One of Japan's 3 great gardens",th:'หนึ่งในสามสวนชื่อดัง'},icon:'🌸',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'東茶屋街',en:'Higashi Chaya',th:'ย่านฮิงาชิชายะ'},desc:{ja:'江戸時代の花街',en:'Edo-era geisha district',th:'ย่านเกอิชาสมัยเอโดะ'},icon:'🏘️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'加賀料理',en:'Kaga Cuisine',th:'อาหารคางะ'},desc:{ja:'伝統的京懐石',en:'Traditional Kaiseki cuisine',th:'อาหารไคเซกิประเพณี'},icon:'🍱',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '福井県':{en:'Fukui',th:'ฟุกุอิ',img:'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=600&q=70',spots:[{name:{ja:'東尋坊',en:'Tojinbo Cliffs',th:'หน้าผาโทจินโบะ'},desc:{ja:'日本海の断崖',en:'Sea of Japan cliffs',th:'หน้าผาทะเลญี่ปุ่น'},icon:'🌊',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'永平寺',en:'Eiheiji Temple',th:'วัดเอเฮจิ'},desc:{ja:'曹洞宗の大本山',en:'Head Soto Zen temple',th:'วัดหลักพุทธโซโตเซ็น'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'越前ガニ',en:'Echizen Crab',th:'ปูเอชิเซ็น'},desc:{ja:'ブランドガニ最高峰',en:"Japan's most premium crab",th:'ปูแบรนด์พรีเมียมสุด'},icon:'🦀',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '山梨県':{en:'Yamanashi',th:'ยามานาชิ',img:'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=70',spots:[{name:{ja:'富士山',en:'Mt. Fuji',th:'ภูเขาไฟฟูจิ'},desc:{ja:'日本最高峰の霊峰',en:"Japan's sacred highest peak",th:'ยอดเขาสูงสุดของญี่ปุ่น'},icon:'🗻',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'武田神社',en:'Takeda Shrine',th:'ศาลเจ้าทาเคดะ'},desc:{ja:'武田信玄ゆかりの神社',en:'Shrine of Takeda Shingen',th:'ศาลเจ้าทาเคดะ ชิงเง็น'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'山梨の桃',en:'Yamanashi Peaches',th:'ลูกพีชยามานาชิ'},desc:{ja:'日本一の生産量',en:"Japan's #1 peach area",th:'พื้นที่ผลิตพีชอันดับหนึ่ง'},icon:'🍑',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '長野県':{en:'Nagano',th:'นากาโน',img:'https://images.unsplash.com/photo-1542640244-6a65f64c0cca?w=600&q=70',spots:[{name:{ja:'善光寺',en:'Zenkoji Temple',th:'วัดเซ็นโคจิ'},desc:{ja:'全国的な名刹',en:'Famous nationwide temple',th:'วัดชื่อดังทั่วประเทศ'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'上高地',en:'Kamikochi',th:'คามิโคจิ'},desc:{ja:'高原リゾート',en:"Japan's premier highland",th:'รีสอร์ทที่ราบสูง'},icon:'🏔️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'信州そば',en:'Shinshu Soba',th:'โซบะชินชู'},desc:{ja:'高品質そば粉',en:'High quality buckwheat',th:'แป้งโซบะคุณภาพสูง'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '岐阜県':{en:'Gifu',th:'กิฟุ',img:'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=600&q=70',spots:[{name:{ja:'白川郷',en:'Shirakawago',th:'ชิราคาวาโกะ'},desc:{ja:'世界遺産の合掌造り',en:'UNESCO thatched village',th:'หมู่บ้านหลังคาฟางมรดกโลก'},icon:'🏘️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'下呂温泉',en:'Gero Onsen',th:'ออนเซ็นเกโระ'},desc:{ja:'日本三名泉',en:"One of Japan's 3 famous onsen",th:'หนึ่งในสามออนเซ็นชื่อดัง'},icon:'♨️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'飛騨牛',en:'Hida Beef',th:'เนื้อวัวฮิดะ'},desc:{ja:'岐阜のブランド牛',en:'Gifu branded Wagyu',th:'วากิวแบรนด์กิฟุ'},icon:'🥩',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '静岡県':{en:'Shizuoka',th:'ชิซุโอกะ',img:'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=70',spots:[{name:{ja:'富士山（静岡側）',en:'Mt. Fuji (South)',th:'ฟูจิ (ฝั่งใต้)'},desc:{ja:'富士山の麓',en:'Fuji southern foothills',th:'เชิงเขาฟูจิทางใต้'},icon:'🗻',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'久能山東照宮',en:'Kunozan Toshogu',th:'ศาลเจ้าคุโนซัง'},desc:{ja:'家康公が眠る神社',en:'Shrine of Tokugawa Ieyasu',th:'ศาลเจ้าโทกุงาวะ'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'静岡おでん',en:'Shizuoka Oden',th:'โอเด้นชิซุโอกะ'},desc:{ja:'黒はんぺんのおでん',en:'Oden with black fish cake',th:'โอเด้นกับขนมปลาดำ'},icon:'🍢',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '愛知県':{en:'Aichi',th:'ไอจิ',img:'https://images.unsplash.com/photo-1526400473556-aac12354f3db?w=600&q=70',spots:[{name:{ja:'名古屋城',en:'Nagoya Castle',th:'ปราสาทนาโกยา'},desc:{ja:'金のシャチホコ',en:'Golden shachi statues',th:'รูปปั้นปลาทองคำ'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'熱田神宮',en:'Atsuta Shrine',th:'ศาลเจ้าอัตสึตะ'},desc:{ja:'三種の神器を祀る',en:'Shrine of Imperial Regalia',th:'ศาลเจ้าเครื่องราชกกุธภัณฑ์'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'名古屋飯',en:'Nagoya Meshi',th:'อาหารนาโกยา'},desc:{ja:'ひつまぶし・みそかつ',en:'Hitsumabushi & misokatsu',th:'ฮิตสึมะบุชิและมิโซะคัตสึ'},icon:'🍱',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '三重県':{en:'Mie',th:'มิเอะ',img:'https://images.unsplash.com/photo-1492571350019-22de08371fd3?w=600&q=70',spots:[{name:{ja:'伊勢神宮',en:'Ise Jingu',th:'ศาลเจ้าอิเซะ'},desc:{ja:'日本最高の聖地',en:"Japan's most sacred shrine",th:'ศาลเจ้าศักดิ์สิทธิ์สูงสุด'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'鳥羽水族館',en:'Toba Aquarium',th:'พิพิธภัณฑ์สัตว์น้ำโทบะ'},desc:{ja:'世界最大級の水族館',en:"World's largest aquarium",th:'พิพิธภัณฑ์สัตว์น้ำยักษ์'},icon:'🐠',cat:{ja:'観光',en:'Attraction',th:'สถานที่ท่องเที่ยว'}},{name:{ja:'伊勢エビ',en:'Ise Lobster',th:'ล็อบสเตอร์อิเซะ'},desc:{ja:'三重の高級食材',en:"Mie's premium lobster",th:'ล็อบสเตอร์พรีเมียมของมิเอะ'},icon:'🦞',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '滋賀県':{en:'Shiga',th:'ชิงะ',img:'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=70',spots:[{name:{ja:'彦根城',en:'Hikone Castle',th:'ปราสาทฮิโคเนะ'},desc:{ja:'国宝指定の城',en:'National Treasure castle',th:'ปราสาทสมบัติแห่งชาติ'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'琵琶湖',en:'Lake Biwa',th:'ทะเลสาบบิวะ'},desc:{ja:'日本最大の湖',en:"Japan's largest lake",th:'ทะเลสาบใหญ่ที่สุดในญี่ปุ่น'},icon:'🌊',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'近江牛',en:'Omi Beef',th:'เนื้อวัวโอมิ'},desc:{ja:'日本三大和牛',en:"One of Japan's 3 Wagyu",th:'หนึ่งในสามวากิวชั้นเยี่ยม'},icon:'🥩',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '京都府':{en:'Kyoto',th:'เกียวโต',img:'https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=600&q=70',spots:[{name:{ja:'金閣寺',en:'Kinkaku-ji',th:'วัดคินคาคุจิ'},desc:{ja:'黄金の寺院',en:'Golden Pavilion temple',th:'วิหารทองคำ'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'嵐山',en:'Arashiyama',th:'อารามิยามะ'},desc:{ja:'竹林の道',en:'Bamboo grove path',th:'ป่าไผ่'},icon:'🎋',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'京料理',en:'Kyoto Cuisine',th:'อาหารเกียวโต'},desc:{ja:'京懐石',en:'Traditional Kaiseki',th:'อาหารไคเซกิ'},icon:'🍱',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '大阪府':{en:'Osaka',th:'โอซากะ',img:'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=70',spots:[{name:{ja:'大阪城',en:'Osaka Castle',th:'ปราสาทโอซากะ'},desc:{ja:'豊臣秀吉の名城',en:'Castle of Toyotomi Hideyoshi',th:'ปราสาทชื่อดัง'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'道頓堀',en:'Dotonbori',th:'โดทงโบริ'},desc:{ja:'グリコ看板と繁華街',en:'Glico sign & nightlife',th:'ป้ายกลิโกะและถนนยามค่ำ'},icon:'🌃',cat:{ja:'観光',en:'Attraction',th:'สถานที่ท่องเที่ยว'}},{name:{ja:'たこ焼き',en:'Takoyaki',th:'ทาโกะยากิ'},desc:{ja:'大阪の粉もん文化',en:"Osaka's flour food culture",th:'วัฒนธรรมอาหารแป้งโอซากะ'},icon:'🐙',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '兵庫県':{en:'Hyogo',th:'เฮียวโงะ',img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=70',spots:[{name:{ja:'姫路城',en:'Himeji Castle',th:'ปราสาทฮิเมจิ'},desc:{ja:'世界遺産の白鷺城',en:"UNESCO's White Heron Castle",th:'ปราสาทนกกระสาขาวมรดกโลก'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'有馬温泉',en:'Arima Onsen',th:'ออนเซ็นอาริมะ'},desc:{ja:'日本最古の名湯',en:"Japan's oldest hot spring",th:'ออนเซ็นเก่าแก่ที่สุด'},icon:'♨️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'神戸ビーフ',en:'Kobe Beef',th:'เนื้อวัวโกเบะ'},desc:{ja:'世界的ブランド牛',en:'World-famous Wagyu',th:'วากิวชื่อดังระดับโลก'},icon:'🥩',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '奈良県':{en:'Nara',th:'นาระ',img:'https://images.unsplash.com/photo-1478359844494-1092259d93e4?w=600&q=70',spots:[{name:{ja:'東大寺・大仏',en:'Todaiji & Great Buddha',th:'วัดโทไดจิ'},desc:{ja:'世界最大の木造建築',en:"World's largest wooden building",th:'อาคารไม้ที่ใหญ่ที่สุด'},icon:'☸️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'奈良公園の鹿',en:'Nara Park Deer',th:'กวางในสวนนาระ'},desc:{ja:'1000頭の鹿',en:'Over 1,000 free-roaming deer',th:'กวางกว่า 1,000 ตัว'},icon:'🦌',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'柿の葉寿司',en:'Kakinoha Sushi',th:'ซูชิห่อใบมะยม'},desc:{ja:'奈良の伝統保存食',en:'Traditional preserved sushi',th:'ซูชิดองประเพณี'},icon:'🍱',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '和歌山県':{en:'Wakayama',th:'วากายามะ',img:'https://images.unsplash.com/photo-1526400473556-aac12354f3db?w=600&q=70',spots:[{name:{ja:'高野山',en:'Koyasan',th:'ภูเขาโคยะ'},desc:{ja:'弘法大師の聖地',en:'Sacred site of Kobo Daishi',th:'สถานที่ศักดิ์สิทธิ์โคโบ ไดชิ'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'熊野古道',en:'Kumano Kodo',th:'เส้นทางแสวงบุญคุมาโน'},desc:{ja:'世界遺産の巡礼路',en:'UNESCO pilgrimage trail',th:'เส้นทางแสวงบุญมรดกโลก'},icon:'🌲',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'和歌山ラーメン',en:'Wakayama Ramen',th:'ราเมนวากายามะ'},desc:{ja:'独特のスープ',en:'Unique soy-pork broth',th:'ซุปถั่วเหลืองและกระดูกหมู'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '鳥取県':{en:'Tottori',th:'ทตโตริ',img:'https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=70',spots:[{name:{ja:'鳥取砂丘',en:'Tottori Sand Dunes',th:'เนินทรายทตโตริ'},desc:{ja:'日本最大の砂丘',en:"Japan's largest sand dunes",th:'เนินทรายใหญ่ที่สุด'},icon:'🏜️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'三徳山三佛寺',en:'Sanbutsuji Temple',th:'วัดซันบุตสึจิ'},desc:{ja:'断崖の投入堂',en:'Cliff-face temple',th:'วัดบนหน้าผาชัน'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'松葉ガニ',en:'Matsuba Crab',th:'ปูมัตสึบะ'},desc:{ja:'山陰のズワイガニ',en:"San'in snow crab",th:"ปูหิมะซันอิน"},icon:'🦀',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '島根県':{en:'Shimane',th:'ชิมาเนะ',img:'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=600&q=70',spots:[{name:{ja:'出雲大社',en:'Izumo Taisha',th:'ศาลเจ้าอิซุโมะ'},desc:{ja:'縁結びの神',en:'God of matchmaking',th:'เทพแห่งการจับคู่'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'石見銀山',en:'Iwami Ginzan',th:'เหมืองเงินอิวามิ'},desc:{ja:'世界遺産の銀鉱山',en:'UNESCO silver mine',th:'เหมืองเงินมรดกโลก'},icon:'⛏️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'出雲そば',en:'Izumo Soba',th:'อิซุโมะโซบะ'},desc:{ja:'割子そばが名物',en:'Stacked soba specialty',th:'โซบะเรียงชั้น'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '岡山県':{en:'Okayama',th:'โอกายามะ',img:'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=70',spots:[{name:{ja:'後楽園',en:'Korakuen Garden',th:'สวนโคราคุเอ็น'},desc:{ja:'日本三名園',en:"One of Japan's 3 great gardens",th:'หนึ่งในสามสวนชื่อดัง'},icon:'🌸',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'岡山城',en:'Okayama Castle',th:'ปราสาทโอกายามะ'},desc:{ja:'烏城・黒い城',en:'"Crow Castle" – black castle',th:'ปราสาทสีดำ'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'吉備団子',en:'Kibi Dango',th:'คิบิดันโงะ'},desc:{ja:'桃太郎の和菓子',en:'Momotaro sweet dumplings',th:'ขนมหวานโมโมทาโร'},icon:'🍡',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '広島県':{en:'Hiroshima',th:'ฮิโรชิมะ',img:'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=600&q=70',spots:[{name:{ja:'厳島神社',en:'Itsukushima Shrine',th:'ศาลเจ้าอิตสึคุชิมะ'},desc:{ja:'海に浮かぶ世界遺産',en:'Floating UNESCO shrine',th:'ศาลเจ้าลอยน้ำมรดกโลก'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'原爆ドーム',en:'Atomic Bomb Dome',th:'โดมระเบิดปรมาณู'},desc:{ja:'平和の象徴',en:'UNESCO symbol of peace',th:'สัญลักษณ์สันติภาพ'},icon:'🕊️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'お好み焼き',en:'Hiroshima Okonomiyaki',th:'โอโคโนมิยากิ'},desc:{ja:'そば入りの広島スタイル',en:'With soba noodles inside',th:'ใส่โซบะข้างใน'},icon:'🥘',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '山口県':{en:'Yamaguchi',th:'ยามากูจิ',img:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600&q=70',spots:[{name:{ja:'角島大橋',en:'Tsunoshima Bridge',th:'สะพานสึโนชิมะ'},desc:{ja:'エメラルドグリーンの海',en:'Emerald green sea bridge',th:'สะพานทะเลสีเขียวมรกต'},icon:'🌊',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'錦帯橋',en:'Kintaikyo Bridge',th:'สะพานคินไต'},desc:{ja:'日本三名橋',en:"One of Japan's 3 bridges",th:'หนึ่งในสามสะพานดัง'},icon:'🌉',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'ふぐ料理',en:'Fugu Cuisine',th:'อาหารปลาปักเป้า'},desc:{ja:'下関名物',en:'Shimonoseki specialty',th:'อาหารพิเศษชิโมโนเซกิ'},icon:'🐡',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '徳島県':{en:'Tokushima',th:'โตกุชิมะ',img:'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=600&q=70',spots:[{name:{ja:'鳴門の渦潮',en:'Naruto Whirlpools',th:'น้ำวนนารุโตะ'},desc:{ja:'世界三大潮流',en:"World's 3 great tidal currents",th:'กระแสน้ำยิ่งใหญ่ระดับโลก'},icon:'🌀',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'阿波おどり',en:'Awa Odori Festival',th:'เทศกาลเต้นรำอาวะ'},desc:{ja:'日本三大盆踊り',en:"One of Japan's 3 Bon dances",th:'หนึ่งในสามการเต้นรำบง'},icon:'💃',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'徳島ラーメン',en:'Tokushima Ramen',th:'ราเมนโตกุชิมะ'},desc:{ja:'甘い豚骨しょうゆ',en:'Sweet soy-pork ramen',th:'ราเมงซอสถั่วเหลืองหวาน'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '香川県':{en:'Kagawa',th:'คากาวะ',img:'https://images.unsplash.com/photo-1526400473556-aac12354f3db?w=600&q=70',spots:[{name:{ja:'金刀比羅宮',en:'Konpira-san Shrine',th:'ศาลเจ้าคงปิระ'},desc:{ja:'1368段の石段',en:'1,368-step staircase',th:'บันได 1,368 ขั้น'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'直島',en:'Naoshima Art Island',th:'เกาะศิลปะนาโอชิมะ'},desc:{ja:'現代アートの島',en:'Island of contemporary art',th:'เกาะศิลปะร่วมสมัย'},icon:'🎨',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'讃岐うどん',en:'Sanuki Udon',th:'อุด้งซานุกิ'},desc:{ja:'日本三大うどん',en:"One of Japan's 3 great udon",th:'หนึ่งในสามอุด้งชื่อดัง'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '愛媛県':{en:'Ehime',th:'เอฮิเมะ',img:'https://images.unsplash.com/photo-1513407030348-c983a97b98d8?w=600&q=70',spots:[{name:{ja:'松山城',en:'Matsuyama Castle',th:'ปราสาทมัตสึยามะ'},desc:{ja:'現存12天守',en:"One of Japan's 12 surviving castles",th:'หนึ่งใน 12 ปราสาทที่ยังเหลืออยู่'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'道後温泉',en:'Dogo Onsen',th:'ออนเซ็นโดโงะ'},desc:{ja:'日本最古の温泉',en:"Japan's oldest hot spring",th:'ออนเซ็นเก่าแก่ที่สุด'},icon:'♨️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'鯛めし',en:'Tai Meshi',th:'ข้าวปลาไทเมชิ'},desc:{ja:'愛媛の鯛料理',en:'Ehime sea bream rice',th:'ข้าวปลาทะเลของเอฮิเมะ'},icon:'🐟',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '高知県':{en:'Kochi',th:'โคจิ',img:'https://images.unsplash.com/photo-1492571350019-22de08371fd3?w=600&q=70',spots:[{name:{ja:'高知城',en:'Kochi Castle',th:'ปราสาทโคจิ'},desc:{ja:'本丸が現存する城',en:'Castle with surviving keep',th:'ปราสาทที่หอคอยยังอยู่'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'四万十川',en:'Shimanto River',th:'แม่น้ำชิมันโตะ'},desc:{ja:'日本最後の清流',en:"Japan's last pristine river",th:'แม่น้ำบริสุทธิ์สายสุดท้าย'},icon:'💧',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'かつおのたたき',en:'Katsuo Tataki',th:'ปลาโบนิโตะย่างฟาง'},desc:{ja:'藁焼きカツオ',en:'Straw-seared bonito',th:'ปลาโบนิโตะย่างฟาง'},icon:'🐟',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '福岡県':{en:'Fukuoka',th:'ฟุกุโอกะ',img:'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=70',spots:[{name:{ja:'太宰府天満宮',en:'Dazaifu Tenmangu',th:'ศาลเจ้าไดซะอิฟุ'},desc:{ja:'学問の神様',en:'God of learning shrine',th:'ศาลเจ้าแห่งการเรียนรู้'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'糸島',en:'Itoshima',th:'อิโตชิมะ'},desc:{ja:'海と山の絶景',en:'Sea & mountain scenery',th:'วิวทะเลและภูเขา'},icon:'🌊',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'博多ラーメン',en:'Hakata Ramen',th:'ราเมนฮากาตะ'},desc:{ja:'濃厚豚骨スープ',en:'Rich pork bone broth',th:'น้ำซุปกระดูกหมูเข้มข้น'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '佐賀県':{en:'Saga',th:'ซากะ',img:'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=600&q=70',spots:[{name:{ja:'有田焼',en:'Arita Ware',th:'เครื่องเคลือบอาริตะ'},desc:{ja:'400年の磁器',en:'400-year-old porcelain',th:'เครื่องเคลือบ 400 ปี'},icon:'🏺',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'吉野ヶ里遺跡',en:'Yoshinogari Ruins',th:'โบราณสถานโยชิโนการิ'},desc:{ja:'弥生時代の遺跡',en:'Yayoi period ruins',th:'ซากยุคยาโยอิ'},icon:'🏛️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'呼子のイカ',en:'Yobuko Fresh Squid',th:'หมึกสดโยบุโกะ'},desc:{ja:'透き通る新鮮イカ',en:'Crystal-clear fresh squid',th:'หมึกสดโปร่งใส'},icon:'🦑',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '長崎県':{en:'Nagasaki',th:'นากาซากิ',img:'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=70',spots:[{name:{ja:'軍艦島',en:'Hashima Island',th:'เกาะฮาชิมะ'},desc:{ja:'世界遺産の無人島',en:'UNESCO deserted island',th:'เกาะร้างมรดกโลก'},icon:'🏝️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'グラバー園',en:'Glover Garden',th:'สวนกลัฟเวอร์'},desc:{ja:'幕末の外国人居留地',en:'Late Edo foreign settlement',th:'ย่านต่างชาติปลายเอโดะ'},icon:'🏛️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'ちゃんぽん',en:'Champon Noodles',th:'บะหมี่จัมปอน'},desc:{ja:'長崎発祥の麺',en:'Noodle originating in Nagasaki',th:'บะหมี่ต้นกำเนิดนากาซากิ'},icon:'🍜',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '熊本県':{en:'Kumamoto',th:'คุมาโมโตะ',img:'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=600&q=70',spots:[{name:{ja:'熊本城',en:'Kumamoto Castle',th:'ปราสาทคุมาโมโตะ'},desc:{ja:'日本三名城',en:"One of Japan's 3 great castles",th:'หนึ่งในสามปราสาทชื่อดัง'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'阿蘇山',en:'Mt. Aso',th:'ภูเขาไฟอาโซ'},desc:{ja:'世界最大級のカルデラ',en:"World's largest caldera",th:'ปล่องภูเขาไฟใหญ่ที่สุด'},icon:'🌋',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'馬刺し',en:'Horse Sashimi',th:'ซาชิมิม้า'},desc:{ja:'熊本名物の馬肉',en:'Kumamoto raw horse meat',th:'เนื้อม้าดิบคุมาโมโตะ'},icon:'🐴',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '大分県':{en:'Oita',th:'โอะอิตะ',img:'https://images.unsplash.com/photo-1478359844494-1092259d93e4?w=600&q=70',spots:[{name:{ja:'別府温泉',en:'Beppu Onsen',th:'ออนเซ็นเบปปุ'},desc:{ja:'温泉湧出量日本一',en:"Japan's #1 onsen output",th:'ออนเซ็นที่มีน้ำพุมากที่สุด'},icon:'♨️',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'地獄めぐり',en:'Beppu Hell Tour',th:'ทัวร์นรกเบปปุ'},desc:{ja:'色鮮やかな天然温泉',en:'Colorful hot spring pools',th:'บ่อน้ำพุร้อนหลากสี'},icon:'🌋',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'関あじ・関さば',en:'Seki Aji & Saba',th:'ปลาเซกิอาจิและซาบะ'},desc:{ja:'豊後水道の高級魚',en:'Premium Bungo Channel fish',th:'ปลาคุณภาพสูงจากบุนโก'},icon:'🐟',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '宮崎県':{en:'Miyazaki',th:'มิยาซากิ',img:'https://images.unsplash.com/photo-1580674285054-bed31e145f59?w=600&q=70',spots:[{name:{ja:'高千穂峡',en:'Takachiho Gorge',th:'หุบเขาทากาจิโฮะ'},desc:{ja:'神話の里の渓谷',en:'Gorge of mythology land',th:'หุบเขาในดินแดนตำนาน'},icon:'💧',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'鵜戸神宮',en:'Udo Shrine',th:'ศาลเจ้าอุโดะ'},desc:{ja:'海岸の洞窟の神社',en:'Seaside cave shrine',th:'ศาลเจ้าในถ้ำริมทะเล'},icon:'⛩️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'地鶏の炭火焼き',en:'Charcoal Chicken',th:'ไก่ท้องถิ่นย่างถ่าน'},desc:{ja:'宮崎地鶏の名物',en:'Miyazaki local chicken',th:'ไก่ท้องถิ่นมิยาซากิ'},icon:'🍗',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '鹿児島県':{en:'Kagoshima',th:'คาโกชิมะ',img:'https://images.unsplash.com/photo-1490806843957-31f4c9a91c65?w=600&q=70',spots:[{name:{ja:'桜島',en:'Sakurajima',th:'ซากุราจิมะ'},desc:{ja:'噴火が続く活火山',en:'Active erupting volcano',th:'ภูเขาไฟที่ยังระเบิดอยู่'},icon:'🌋',cat:{ja:'自然',en:'Nature',th:'ธรรมชาติ'}},{name:{ja:'知覧特攻平和会館',en:'Chiran Peace Museum',th:'พิพิธภัณฑ์สันติภาพ'},desc:{ja:'歴史的な記念館',en:'Historical memorial museum',th:'พิพิธภัณฑ์อนุสรณ์ประวัติศาสตร์'},icon:'🕊️',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'黒豚しゃぶしゃぶ',en:'Black Pork Shabu',th:'หมูดำชาบู'},desc:{ja:'ブランド黒豚',en:'Premium black pork',th:'หมูดำพรีเมียม'},icon:'🐷',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]},
+  '沖縄県':{en:'Okinawa',th:'โอกินาวะ',img:'https://images.unsplash.com/photo-1569437061241-a848be43cc82?w=600&q=70',spots:[{name:{ja:'首里城',en:'Shuri Castle',th:'ปราสาทชูริ'},desc:{ja:'琉球王国の象徴',en:'Symbol of Ryukyu Kingdom',th:'สัญลักษณ์อาณาจักรริวกิว'},icon:'🏯',cat:{ja:'文化',en:'Culture',th:'วัฒนธรรม'}},{name:{ja:'美ら海水族館',en:'Churaumi Aquarium',th:'พิพิธภัณฑ์สัตว์น้ำชูราอุมิ'},desc:{ja:'世界最大級の水族館',en:"World's largest aquarium",th:'พิพิธภัณฑ์สัตว์น้ำยักษ์'},icon:'🐠',cat:{ja:'観光',en:'Attraction',th:'สถานที่ท่องเที่ยว'}},{name:{ja:'沖縄料理',en:'Okinawa Cuisine',th:'อาหารโอกินาวะ'},desc:{ja:'ゴーヤチャンプルーと泡盛',en:'Goya champuru & awamori',th:'กอยาจัมปูรูและอาวาโมริ'},icon:'🥬',cat:{ja:'グルメ',en:'Food',th:'อาหาร'}}]}
+};
+
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+let lang = localStorage.getItem('njj_lang') || 'ja';
+let currentUserId = null;   // active user
+let currentRegion = null;
+let currentPref   = null;
+let viewerPhotoIndex = null;
+let viewerPrefKey    = null;
+let currentScreen    = 'home';
+let prefFilter       = 'all';
+let selectedAvatar   = AVATARS[0];
+let confirmCallback  = null;
+
+// ════════════════════════════════
+//  USER STORAGE
+//  users list: localStorage key "njj_users" → [{id,name,avatar,lastLogin}]
+//  user data:  localStorage key "njj_u_{uid}_{pref}" → {visited,favorite,...}
+//  user bg:    localStorage key "njj_ubg_{uid}"
+// ════════════════════════════════
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem('njj_users')) || []; } catch { return []; }
+}
+function saveUsers(arr) { localStorage.setItem('njj_users', JSON.stringify(arr)); }
+
+function getData(pref) {
+  if (!currentUserId) return blankData();
+  const raw = localStorage.getItem(`njj_u_${currentUserId}_${pref}`);
+  return raw ? JSON.parse(raw) : blankData();
+}
+function setData(pref, obj) {
+  if (!currentUserId) return;
+  localStorage.setItem(`njj_u_${currentUserId}_${pref}`, JSON.stringify(obj));
+}
+function blankData() { return {visited:false,favorite:false,visitDate:'',comment:'',photos:[],wishlist:false}; }
+
+function getUserBg() { return currentUserId ? (localStorage.getItem(`njj_ubg_${currentUserId}`) || '') : ''; }
+function setUserBg(d) { if (currentUserId) localStorage.setItem(`njj_ubg_${currentUserId}`, d); }
+
+function deleteUserData(uid) {
+  // remove all keys for this user
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+  keys.filter(k => k.startsWith(`njj_u_${uid}_`) || k === `njj_ubg_${uid}`).forEach(k => localStorage.removeItem(k));
+}
+
+// ════════════════════════════════
+//  i18n
+// ════════════════════════════════
+function t(key) { return I18N[lang]?.[key] ?? I18N.en[key] ?? key; }
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  const labels = {ja:'日本語',en:'EN',th:'ภาษาไทย'};
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === labels[lang]));
+  document.querySelectorAll('[data-i]').forEach(el => {
+    const k = el.dataset.i; if (k) el.textContent = t(k);
+  });
+  document.querySelectorAll('[data-placeholder-i]').forEach(el => {
+    el.placeholder = t(el.dataset.placeholderI);
+  });
+  if (document.getElementById('tagline')) document.getElementById('tagline').textContent = t('tagline');
+  if (document.getElementById('stampLabel')) document.getElementById('stampLabel').textContent = t('stampLabel');
+}
+
+function setLang(l) {
+  lang = l; localStorage.setItem('njj_lang', l); applyLang();
+  renderLoginScreen();
+  if (currentUserId) {
+    if (currentScreen==='home') renderHome();
+    else if (currentScreen==='prefList') renderPrefGrid(currentRegion ? currentRegion.prefs : Object.keys(PREFS));
+    else if (currentScreen==='detail' && currentPref) openPref(currentPref);
+  }
+}
+
+// ════════════════════════════════
+//  LOGIN SCREEN
+// ════════════════════════════════
+function renderLoginScreen() {
+  applyLang();
+  // Avatar picker
+  const ar = document.getElementById('avatarRow');
+  ar.innerHTML = AVATARS.map(a =>
+    `<div class="av-opt ${a===selectedAvatar?'sel':''}" onclick="selectAvatar('${a}')">${a}</div>`
+  ).join('');
+
+  // User list
+  const ul = document.getElementById('userList');
+  const users = getUsers();
+  if (!users.length) {
+    ul.innerHTML = `<div class="empty-users">${t('noUsers')}</div>`;
+    return;
+  }
+  ul.innerHTML = users.map(u => {
+    // count visited
+    const vc = Object.keys(PREFS).filter(p => {
+      const raw = localStorage.getItem(`njj_u_${u.id}_${p}`);
+      return raw && JSON.parse(raw).visited;
+    }).length;
+    const lastDate = u.lastLogin ? new Date(u.lastLogin).toLocaleDateString(lang==='th'?'th-TH':lang==='ja'?'ja-JP':'en-US',{year:'numeric',month:'short',day:'numeric'}) : '—';
+    return `<div class="user-tile" onclick="loginAs('${u.id}')">
+      <div class="user-avatar">${u.avatar}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-meta">${t('visitedCount')}: ${vc} / 47 &nbsp;·&nbsp; ${t('lastLogin')}: ${lastDate}</div>
+      </div>
+      <div class="user-delete" onclick="event.stopPropagation();confirmDeleteUser('${u.id}','${u.name}')" title="delete">🗑️</div>
+    </div>`;
+  }).join('');
+}
+
+function selectAvatar(a) {
+  selectedAvatar = a;
+  document.querySelectorAll('.av-opt').forEach(el => el.classList.toggle('sel', el.textContent===a));
+}
+
+function createUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  if (!name) { document.getElementById('newUserName').focus(); return; }
+  const users = getUsers();
+  const id = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  users.push({ id, name, avatar: selectedAvatar, lastLogin: null });
+  saveUsers(users);
+  document.getElementById('newUserName').value = '';
+  showToast(t('toastUserCreated'));
+  loginAs(id);
+}
+
+function loginAs(uid) {
+  const users = getUsers();
+  const u = users.find(x => x.id===uid);
+  if (!u) return;
+  u.lastLogin = new Date().toISOString();
+  saveUsers(users);
+  currentUserId = uid;
+  localStorage.setItem('njj_lastUser', uid);
+
+  // User bar
+  document.getElementById('userBarAvatar').textContent = u.avatar;
+  document.getElementById('userBarName').textContent   = u.name;
+  document.getElementById('userBar').classList.add('show');
+  document.querySelector('.switch-user-btn').textContent = t('switchUser');
+
+  // Apply user background
+  const bg = getUserBg();
+  const bgEl = document.getElementById('bg-layer');
+  if (bg) { bgEl.style.backgroundImage=`url(${bg})`; bgEl.classList.add('has-img'); }
+  else    { bgEl.style.backgroundImage=''; bgEl.classList.remove('has-img'); }
+
+  // Hide login, show app
+  document.getElementById('loginScreen').classList.remove('show');
+  document.getElementById('app').style.display = 'block';
+  renderHome();
+  showScreen('home');
+}
+
+function showLogin() {
+  currentUserId = null;
+  document.getElementById('userBar').classList.remove('show');
+  document.getElementById('app').style.display = 'none';
+  renderLoginScreen();
+  document.getElementById('loginScreen').classList.add('show');
+}
+
+function confirmDeleteUser(uid, name) {
+  document.getElementById('confirmTitle').textContent = t('deleteUserTitle');
+  document.getElementById('confirmMsg').textContent   = t('deleteUserMsg').replace('{name}', name);
+  document.getElementById('confirmOk').textContent     = t('confirmDelete');
+  document.getElementById('confirmCancel').textContent = t('cancel');
+  document.getElementById('confirmOk').onclick = () => { doDeleteUser(uid); closeConfirm(); };
+  document.getElementById('confirmDialog').classList.add('show');
+}
+function closeConfirm() { document.getElementById('confirmDialog').classList.remove('show'); }
+
+function doDeleteUser(uid) {
+  deleteUserData(uid);
+  const users = getUsers().filter(u => u.id!==uid);
+  saveUsers(users);
+  showToast(t('toastUserDeleted'));
+  renderLoginScreen();
+}
+
+// ════════════════════════════════
+//  HOME
+// ════════════════════════════════
+function renderHome() {
+  const allPrefs = Object.keys(PREFS);
+  const visitedList = allPrefs.filter(p => getData(p).visited);
+  const favList     = allPrefs.filter(p => getData(p).favorite);
+  const wishList    = allPrefs.filter(p => getData(p).wishlist);
+
+  document.getElementById('visitedCount').textContent     = visitedList.length;
+  document.getElementById('progressFill').style.width     = (visitedList.length/47*100)+'%';
+  document.getElementById('statVisited').textContent      = visitedList.length;
+  document.getElementById('statFav').textContent          = favList.length;
+  document.getElementById('statWish').textContent         = wishList.length;
+
+  // Recent
+  const recent = allPrefs.filter(p=>{ const d=getData(p); return d.visited && d.photos?.length; }).slice(-8).reverse();
+  const recentSec = document.getElementById('recentSection');
+  if (recent.length) {
+    recentSec.style.display='block';
+    document.getElementById('recentList').innerHTML = recent.map(p=>{
+      const d=getData(p);
+      return `<div class="recent-card" onclick="openPref('${p}')"><img src="${d.photos[0]}" alt=""><div class="recent-label">${p}</div></div>`;
+    }).join('');
+  } else { recentSec.style.display='none'; }
+
+  // Regions
+  document.getElementById('regionGrid').innerHTML = REGIONS.map(r=>{
+    const vis = r.prefs.filter(p=>getData(p).visited).length;
+    return `<div class="region-card" onclick="openRegion('${r.id}')">
+      <div class="region-icon">${r.icon}</div>
+      <div class="region-name">${t('regionNames')[r.id]}</div>
+      <div class="region-sub">${r.en}</div>
+      <div class="region-badge">${vis}/${r.prefs.length}</div>
+    </div>`;
+  }).join('');
+
+  applyLang();
+}
+
+// ════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0); currentScreen=id;
+}
+function goHome() { renderHome(); showScreen('home'); }
+function goBack() { showScreen(currentScreen==='detail'?'prefList':'home'); }
+function setNav(i) { document.querySelectorAll('.nav-item').forEach((el,j)=>el.classList.toggle('active',i===j)); }
+function showRegionSelect() { goHome(); }
+function showFavorites() { openFiltered('favorite'); setNav(2); }
+function showWishlist()  { openFiltered('wishlist');  setNav(3); }
+
+function openFiltered(filter) {
+  currentRegion=null;
+  document.getElementById('regionTitle').textContent = filter==='favorite'?t('favorites'):t('wishlist');
+  document.getElementById('regionSub').textContent   = filter==='favorite'?'FAVORITES':'WISHLIST';
+  prefFilter=filter;
+  renderPrefGrid(Object.keys(PREFS));
+  showScreen('prefList');
+}
+
+function openRegion(rid) {
+  currentRegion = REGIONS.find(r=>r.id===rid);
+  document.getElementById('regionTitle').textContent = t('regionNames')[rid];
+  document.getElementById('regionSub').textContent   = currentRegion.en;
+  prefFilter='all';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.pf==='all'));
+  renderPrefGrid(currentRegion.prefs);
+  showScreen('prefList');
+}
+
+function setPrefFilter(f,el) {
+  prefFilter=f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderPrefGrid(currentRegion?currentRegion.prefs:Object.keys(PREFS));
+}
+
+function renderPrefGrid(prefs) {
+  let list=prefs;
+  if(prefFilter==='visited')   list=prefs.filter(p=>getData(p).visited);
+  if(prefFilter==='unvisited') list=prefs.filter(p=>!getData(p).visited);
+  if(prefFilter==='wishlist')  list=prefs.filter(p=>getData(p).wishlist);
+  if(prefFilter==='favorite')  list=prefs.filter(p=>getData(p).favorite);
+  if(!list.length){
+    document.getElementById('prefGrid').innerHTML=`<div class="empty-state"><div class="empty-icon">🗾</div>${t('empty')}</div>`;
+    return;
+  }
+  document.getElementById('prefGrid').innerHTML=list.map(p=>{
+    const d=getData(p),info=PREFS[p];
+    const cls=d.visited?'visited':(d.wishlist?'wl':'');
+    const icons=[d.favorite?'⭐':'',d.photos?.length?'📷':'',d.wishlist&&!d.visited?'🔖':''].filter(Boolean);
+    const sub=lang==='th'?info.th:info.en;
+    return `<div class="pref-card ${cls}" onclick="openPref('${p}')">
+      <div class="dot"></div>
+      <div class="pref-name">${p}</div>
+      <div class="pref-en">${sub}</div>
+      <div class="pref-icons">${icons.map(i=>`<span class="pref-ico">${i}</span>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function setHomeFilter(f) {
+  document.querySelectorAll('.f-btn').forEach(el=>el.classList.remove('on'));
+  document.getElementById('filter-'+f).classList.add('on');
+  if(f==='all'){goHome();return;}
+  currentRegion=null;
+  const tm={visited:t('visited'),wishlist:t('wishlist'),fav:t('favorites')};
+  document.getElementById('regionTitle').textContent=tm[f];
+  document.getElementById('regionSub').textContent=f.toUpperCase();
+  prefFilter=f==='fav'?'favorite':f;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  renderPrefGrid(Object.keys(PREFS));
+  showScreen('prefList');
+}
+
+// ════════════════════════════════
+//  DETAIL
+// ════════════════════════════════
+function openPref(pref) {
+  currentPref=pref;
+  const info=PREFS[pref],data=getData(pref);
+  document.getElementById('detailPrefName').textContent=pref;
+  document.getElementById('detailPrefSub').textContent=lang==='th'?info.th:info.en;
+  document.getElementById('detailHeroImg').src=data.photos?.length?data.photos[0]:info.img;
+  document.getElementById('detailBody').innerHTML=data.visited?renderVisited(pref,data):renderUnvisited(pref,data,info);
+  showScreen('detail');
+}
+function renderVisited(pref,data){
+  return `
+  <div class="toggle-row"><div class="toggle-lbl">${t('visitedStatus')}</div><div class="tog on" onclick="toggleVisited('${pref}')"></div></div>
+  <div class="toggle-row"><div class="toggle-lbl">${t('favoriteLabel')}</div><div class="tog ${data.favorite?'fav':''}" onclick="toggleFavorite('${pref}')"></div></div>
+  <div class="inp-group"><label class="inp-label">${t('visitDate')}</label><input type="date" class="inp" id="visitDate" value="${data.visitDate||''}"></div>
+  <div class="inp-group"><label class="inp-label">${t('memories')}</label><textarea class="inp" id="commentField" placeholder="${t('memoriesPlaceholder')}">${data.comment||''}</textarea></div>
+  <div class="photo-sec">
+    <label class="inp-label">${t('photos')} (${data.photos?.length||0}/10)</label>
+    <div class="photo-scroll" id="photoRow">
+      ${(data.photos||[]).map((p,i)=>`<img class="p-thumb" src="${p}" onclick="openViewer('${pref}',${i})">`).join('')}
+      ${(data.photos?.length||0)<10?`<div class="p-add" onclick="triggerPhotoUpload('${pref}')"><span class="p-add-icon">📷</span><span>${t('addPhoto')}</span></div>`:''}
+    </div>
+  </div>
+  <button class="save-btn" onclick="saveComment('${pref}')">${t('save')}</button>`;
+}
+function renderUnvisited(pref,data,info){
+  const spots=info.spots.map(s=>`
+    <div class="spot-card"><div class="spot-ico">${s.icon}</div><div>
+      <div class="spot-name">${s.name[lang]||s.name.en}</div>
+      <div class="spot-desc">${s.desc[lang]||s.desc.en}</div>
+      <span class="spot-cat">${s.cat[lang]||s.cat.en}</span>
+    </div></div>`).join('');
+  return `
+  <div class="toggle-row"><div class="toggle-lbl">${t('notVisitedStatus')}</div><div class="tog" onclick="toggleVisited('${pref}')"></div></div>
+  <div class="divider"></div>
+  <div class="sec-title" style="padding:0 0 4px">${t('recommendedSpots')}</div>
+  ${spots}
+  <button class="wl-btn ${data.wishlist?'active':''}" onclick="toggleWishlist('${pref}')" id="wishBtn">
+    ${data.wishlist?t('removeFromWishlist'):t('addToWishlist')}
+  </button>`;
+}
+
+// ════════════════════════════════
+//  ACTIONS
+// ════════════════════════════════
+function toggleVisited(p){const d=getData(p);d.visited=!d.visited;if(!d.visited)d.favorite=false;setData(p,d);openPref(p);showToast(d.visited?t('toastVisited'):t('toastUnvisited'));}
+function toggleFavorite(p){const d=getData(p);d.favorite=!d.favorite;setData(p,d);openPref(p);showToast(d.favorite?t('toastFavOn'):t('toastFavOff'));}
+function toggleWishlist(p){
+  const d=getData(p);d.wishlist=!d.wishlist;setData(p,d);
+  const btn=document.getElementById('wishBtn');
+  if(btn){btn.classList.toggle('active',d.wishlist);btn.textContent=d.wishlist?t('removeFromWishlist'):t('addToWishlist');}
+  showToast(d.wishlist?t('toastWlOn'):t('toastWlOff'));
+}
+function saveComment(p){
+  const d=getData(p);
+  d.comment=document.getElementById('commentField')?.value||'';
+  d.visitDate=document.getElementById('visitDate')?.value||'';
+  setData(p,d);showToast(t('toastSaved'));
+}
+
+// ════════════════════════════════
+//  PHOTOS
+// ════════════════════════════════
+function triggerPhotoUpload(p){const inp=document.getElementById('photoUpload');inp.onchange=e=>handlePhotoUpload(e,p);inp.click();}
+async function handlePhotoUpload(e,p){
+  const files=Array.from(e.target.files);const d=getData(p);if(!d.photos)d.photos=[];
+  const toProcess=files.slice(0,10-d.photos.length);
+  for(const f of toProcess)d.photos.push(await compressImage(f,800,.7));
+  setData(p,d);e.target.value='';openPref(p);showToast(`📷 ${toProcess.length} ${t('toastPhotoAdded')}`);
+}
+function compressImage(file,maxSize,quality){
+  return new Promise(resolve=>{
+    const img=new Image(),reader=new FileReader();
+    reader.onload=ev=>{img.onload=()=>{
+      const canvas=document.createElement('canvas');let w=img.width,h=img.height;
+      if(w>maxSize){h=h*maxSize/w;w=maxSize;}if(h>maxSize){w=w*maxSize/h;h=maxSize;}
+      canvas.width=w;canvas.height=h;canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };img.src=ev.target.result;};
+    reader.readAsDataURL(file);
+  });
+}
+function openViewer(p,idx){
+  viewerPrefKey=p;viewerPhotoIndex=idx;
+  document.getElementById('viewerImg').src=getData(p).photos[idx];
+  document.getElementById('vDelBtn').textContent=t('deletePhoto');
+  document.getElementById('photoViewer').classList.add('open');
+}
+function closeViewer(){document.getElementById('photoViewer').classList.remove('open');viewerPhotoIndex=null;viewerPrefKey=null;}
+function deleteViewerPhoto(){
+  if(!viewerPrefKey||viewerPhotoIndex===null)return;
+  const d=getData(viewerPrefKey);d.photos.splice(viewerPhotoIndex,1);
+  setData(viewerPrefKey,d);closeViewer();openPref(viewerPrefKey);showToast(t('toastPhotoDeleted'));
+}
+async function handleBgUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const c=await compressImage(file,1200,.75);setUserBg(c);
+  const el=document.getElementById('bg-layer');el.style.backgroundImage=`url(${c})`;el.classList.add('has-img');
+  e.target.value='';showToast(t('toastBg'));
+}
+
+// ════════════════════════════════
+//  TOAST
+// ════════════════════════════════
+function showToast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+// ════════════════════════════════
+//  INIT
+// ════════════════════════════════
+function init() {
+  applyLang();
+  renderLoginScreen();
+  // Auto-login last user if exists
+  const lastUid = localStorage.getItem('njj_lastUser');
+  if (lastUid && getUsers().find(u=>u.id===lastUid)) {
+    loginAs(lastUid);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
