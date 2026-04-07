@@ -25,7 +25,10 @@ body{font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;background:var(--bg)
 #app{position:relative;z-index:2;min-height:100vh}
 
 /* ── LANG BAR ── */
-.lang-bar{position:fixed;top:0;right:0;z-index:200;display:flex;gap:3px;padding:10px 12px}
+.lang-bar{display:flex;gap:4px;justify-content:center;margin-bottom:20px}
+/* lang-bar inside login: centered; inside app: fixed top-right */
+#app-lang-bar{position:fixed;top:0;right:0;z-index:600;display:none;gap:3px;padding:10px 12px}
+#app-lang-bar.show{display:flex}
 .lang-btn{padding:5px 11px;border-radius:99px;border:1px solid var(--border);background:rgba(15,15,26,0.88);backdrop-filter:blur(10px);color:var(--text-muted);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
 .lang-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(212,175,112,0.15)}
 
@@ -36,11 +39,11 @@ body{font-family:'Noto Sans JP','Noto Sans Thai',sans-serif;background:var(--bg)
   display:none;position:fixed;inset:0;z-index:500;
   background:rgba(10,10,20,0.96);backdrop-filter:blur(16px);
   flex-direction:column;align-items:center;justify-content:center;
-  padding:24px;overflow-y:auto;
+  padding:24px 24px 40px;overflow-y:auto;
 }
 #loginScreen.show{display:flex}
 .login-logo{font-family:'Cinzel',serif;font-size:20px;color:var(--gold);text-align:center;letter-spacing:2px;margin-bottom:4px;text-shadow:0 0 24px rgba(212,175,112,0.4)}
-.login-sub{font-size:11px;color:var(--text-muted);letter-spacing:2px;text-align:center;margin-bottom:32px}
+.login-sub{font-size:12px;color:var(--text-muted);letter-spacing:1px;text-align:center;margin-bottom:28px;font-family:'Noto Sans JP','Noto Sans Thai',sans-serif}
 
 /* User list */
 .user-list{width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
@@ -258,9 +261,9 @@ input[type="file"]{display:none}
 <div id="bg-layer"></div>
 <div id="bg-overlay"></div>
 
-<!-- LANG BAR -->
-<div class="lang-bar">
-  <div class="lang-btn active" onclick="setLang('ja')">日本語</div>
+<!-- APP LANG BAR (shown only when logged in) -->
+<div id="app-lang-bar">
+  <div class="lang-btn" onclick="setLang('ja')">日本語</div>
   <div class="lang-btn" onclick="setLang('en')">EN</div>
   <div class="lang-btn" onclick="setLang('th')">ภาษาไทย</div>
 </div>
@@ -274,18 +277,26 @@ input[type="file"]{display:none}
 
 <!-- ═══ LOGIN SCREEN ═══ -->
 <div id="loginScreen" class="show">
+
+  <!-- Lang switcher inside login screen -->
+  <div class="lang-bar">
+    <div class="lang-btn active" onclick="setLang('ja')">日本語</div>
+    <div class="lang-btn" onclick="setLang('en')">EN</div>
+    <div class="lang-btn" onclick="setLang('th')">ภาษาไทย</div>
+  </div>
+
   <div class="login-logo">Nicharat Japan Journey</div>
-  <div class="login-sub" data-i="loginSubtitle"></div>
+  <div class="login-sub" id="loginSubEl"></div>
 
   <!-- Existing users -->
   <div class="user-list" id="userList"></div>
 
   <!-- Create new user -->
   <div class="new-user-box">
-    <div class="new-user-title" data-i="newUser"></div>
+    <div class="new-user-title" id="newUserTitleEl"></div>
     <div class="avatar-row" id="avatarRow"></div>
-    <input class="login-inp" id="newUserName" type="text" maxlength="20" data-placeholder-i="namePlaceholder">
-    <button class="create-btn" onclick="createUser()" data-i="createBtn"></button>
+    <input class="login-inp" id="newUserName" type="text" maxlength="20">
+    <button class="create-btn" id="createBtnEl" onclick="createUser()"></button>
   </div>
 </div>
 
@@ -636,15 +647,21 @@ function t(key) { return I18N[lang]?.[key] ?? I18N.en[key] ?? key; }
 function applyLang() {
   document.documentElement.lang = lang;
   const labels = {ja:'日本語',en:'EN',th:'ภาษาไทย'};
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === labels[lang]));
+  document.querySelectorAll('.lang-btn').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim() === labels[lang])
+  );
   document.querySelectorAll('[data-i]').forEach(el => {
     const k = el.dataset.i; if (k) el.textContent = t(k);
   });
-  document.querySelectorAll('[data-placeholder-i]').forEach(el => {
-    el.placeholder = t(el.dataset.placeholderI);
-  });
-  if (document.getElementById('tagline')) document.getElementById('tagline').textContent = t('tagline');
-  if (document.getElementById('stampLabel')) document.getElementById('stampLabel').textContent = t('stampLabel');
+  // Login screen: update by ID (elements not using data-i)
+  const el_sub   = document.getElementById('loginSubEl');    if (el_sub)   el_sub.textContent   = t('loginSubtitle');
+  const el_title = document.getElementById('newUserTitleEl'); if (el_title) el_title.textContent = t('newUser');
+  const el_btn   = document.getElementById('createBtnEl');   if (el_btn)   el_btn.textContent   = t('createBtn');
+  const el_inp   = document.getElementById('newUserName');    if (el_inp)   el_inp.placeholder   = t('namePlaceholder');
+  const el_sw    = document.querySelector('.switch-user-btn'); if (el_sw)   el_sw.textContent    = t('switchUser');
+  // Main app
+  const tg = document.getElementById('tagline');    if (tg) tg.textContent = t('tagline');
+  const sl = document.getElementById('stampLabel'); if (sl) sl.textContent = t('stampLabel');
 }
 
 function setLang(l) {
@@ -731,9 +748,10 @@ function loginAs(uid) {
   if (bg) { bgEl.style.backgroundImage=`url(${bg})`; bgEl.classList.add('has-img'); }
   else    { bgEl.style.backgroundImage=''; bgEl.classList.remove('has-img'); }
 
-  // Hide login, show app
+  // Hide login, show app + app lang bar
   document.getElementById('loginScreen').classList.remove('show');
   document.getElementById('app').style.display = 'block';
+  document.getElementById('app-lang-bar').classList.add('show');
   renderHome();
   showScreen('home');
 }
@@ -741,6 +759,7 @@ function loginAs(uid) {
 function showLogin() {
   currentUserId = null;
   document.getElementById('userBar').classList.remove('show');
+  document.getElementById('app-lang-bar').classList.remove('show');
   document.getElementById('app').style.display = 'none';
   renderLoginScreen();
   document.getElementById('loginScreen').classList.add('show');
